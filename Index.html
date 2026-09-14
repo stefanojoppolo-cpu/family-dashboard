@@ -1,0 +1,2517 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Dashboard</title>
+<style>
+  :root{
+    --paper:#F3F3F6;
+    --paper-raised:#FFFFFF;
+    --ink:#181818;
+    --ink-soft:#706E6B;
+    --line:#DDDBDA;
+    --stamp:#C23934;
+    --stamp-soft:#FEF0EE;
+    --gold:#B67300;
+    --gold-soft:#FDF3E4;
+    --teal:#2E844A;
+    --teal-soft:#E4F6E9;
+    --accent:#0176D3;
+    --accent-hover:#014486;
+    --accent-soft:#EAF5FE;
+    --page-bg:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--page-bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    font-size:15px;
+    line-height:1.5;
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:1720px;
+    margin:0 auto;
+    padding:40px 24px 80px;
+  }
+  header{
+    margin-bottom:24px;
+  }
+  h1{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    font-weight:600;
+    font-size:32px;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:14.5px;
+  }
+  .summary{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:24px;
+  }
+  .summary-item{
+    flex:1;
+    min-width:160px;
+    padding:16px 18px;
+    border:1px solid var(--line);
+    border-radius:8px;
+  }
+  .summary-num{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    font-size:24px;
+    font-weight:500;
+    display:block;
+    line-height:1.1;
+  }
+  .summary-label{
+    color:var(--ink-soft);
+    font-size:12.5px;
+    margin-top:4px;
+    display:block;
+  }
+  .summary-item.warn .summary-num{color:var(--stamp);}
+  .summary-item.pend .summary-num{color:var(--gold);}
+  nav.tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .tab-btn{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    font-size:14px;
+    font-weight:500;
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    padding:9px 18px;
+    cursor:pointer;
+    border-radius:16px;
+  }
+  .tab-btn.active{
+    background:var(--accent);
+    color:#fff;
+    border-color:var(--accent);
+  }
+  section.panel{
+    display:none;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--paper-raised);
+    padding:24px;
+  }
+  section.panel.active{display:block;}
+  .table-scroll{
+    overflow:auto;
+    max-height:60vh;
+    border:1px solid var(--line);
+    border-radius:4px;
+    margin-bottom:20px;
+  }
+  .table-scroll table{margin-bottom:0;}
+  #panel-medical .table-scroll table{
+    min-width:1500px;
+  }
+  .table-scroll thead th{
+    position:sticky;
+    top:0;
+    background:var(--paper-raised);
+    z-index:1;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:20px;
+  }
+  th{
+    text-align:left;
+    font-weight:500;
+    font-size:12px;
+    color:var(--ink-soft);
+    padding:0 10px 8px;
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  th[data-sort-key]{cursor:pointer;user-select:none;}
+  th[data-sort-key]:hover{color:var(--ink);}
+  .sort-ind{font-size:10px;display:inline-block;width:8px;}
+  td{
+    padding:10px 8px;
+    border-bottom:1px solid var(--line);
+    vertical-align:middle;
+    font-size:12px;
+  }
+  tr.row-overdue td:first-child{border-left:3px solid var(--stamp);}
+  tr.row-soon td:first-child{border-left:3px solid var(--gold);}
+  tr.row-ok td:first-child{border-left:3px solid var(--teal);}
+  .badge{
+    display:inline-block;
+    padding:3px 11px;
+    border-radius:12px;
+    font-size:12.5px;
+    font-weight:500;
+  }
+  .badge.overdue{background:var(--stamp-soft);color:var(--stamp);}
+  .badge.soon{background:var(--gold-soft);color:var(--gold);}
+  .badge.paid{background:var(--teal-soft);color:var(--teal);}
+  .badge.pending{background:var(--gold-soft);color:var(--gold);}
+  .badge.refunded{background:var(--teal-soft);color:var(--teal);}
+  .badge.refused{background:var(--stamp-soft);color:var(--stamp);}
+  .amount{font-variant-numeric:tabular-nums;}
+  button{
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .btn{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    padding:8px 16px;
+    border-radius:4px;
+    font-size:13.5px;
+    font-weight:500;
+  }
+  .btn:hover{background:var(--accent-hover);}
+  .btn.ghost{
+    background:none;
+    color:var(--accent);
+    border:1px solid var(--line);
+  }
+  .btn.small{padding:5px 11px;font-size:12.5px;}
+  .btn.danger{color:var(--stamp);}
+  .row-actions{display:flex;gap:6px;}
+  .add-toggle{
+    border:1px dashed var(--line);
+    background:none;
+    width:100%;
+    padding:10px;
+    color:var(--ink-soft);
+    border-radius:4px;
+    font-size:14px;
+    margin-top:4px;
+  }
+  .add-toggle:hover{border-color:var(--ink);color:var(--ink);}
+  .entry-form{
+    display:none;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    margin-top:14px;
+    padding:18px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:6px;
+  }
+  .entry-form.open{display:grid;}
+  .entry-form .field{display:flex;flex-direction:column;gap:5px;}
+  .entry-form .field.span2{grid-column:span 2;}
+  .entry-form .field.span3{grid-column:span 3;}
+  #medical-form.open{display:block;}
+  #bilancio-form.open{display:block;}
+  #contratti-form.open{display:block;}
+  .form-section{margin-bottom:20px;}
+  .form-section:last-of-type{margin-bottom:0;}
+  .form-section-title{
+    font-size:12px;font-weight:600;color:var(--ink-soft);
+    text-transform:uppercase;letter-spacing:0.03em;margin:0 0 4px;
+  }
+  .form-section-hint{font-size:12px;color:var(--ink-soft);margin:0 0 10px;}
+  .form-row{display:grid;gap:14px;margin-bottom:12px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-row-3{grid-template-columns:repeat(3,1fr);}
+  .form-row-modstato{grid-template-columns:1fr 2fr;}
+  .form-row-importi{grid-template-columns:1fr 1fr 1fr 0.8fr;}
+  .form-row-mamma{
+    display:flex;align-items:center;gap:16px;
+    background:var(--paper);border-radius:4px;padding:10px 14px;
+  }
+  label{font-size:12.5px;color:var(--ink-soft);}
+  input, select, textarea{
+    font-family:inherit;
+    font-size:14px;
+    padding:8px 10px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:#fff;
+    color:var(--ink);
+  }
+  input:disabled{background:var(--paper);color:var(--ink-soft);cursor:not-allowed;}
+  .form-actions{
+    grid-column:1/-1;
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+  }
+  .refund-block{
+    display:flex;
+    gap:18px;
+    font-size:13px;
+  }
+  .refund-col{flex:1;}
+  .refund-col h4{
+    margin:0 0 4px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+  }
+  .empty-state{
+    color:var(--ink-soft);
+    font-size:14px;
+    padding:20px 0;
+    text-align:center;
+  }
+  .filter-bar{
+    margin-bottom:14px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    flex-wrap:nowrap;
+    white-space:nowrap;
+    overflow-x:auto;
+    padding-bottom:4px;
+  }
+  .filter-bar label, .filter-bar select, .filter-bar input{flex-shrink:0;}
+  .filter-bar select{padding:6px 9px;font-size:13.5px;}
+  .filter-bar input[type="text"]{padding:6px 9px;font-size:13.5px;}
+  .doc-ref{color:inherit;font-size:inherit;}
+  .modalita-badge{
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:3px;
+    font-size:12px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+  }
+  .subtotal-row td{
+    font-weight:600;
+    border-bottom:none;
+    border-top:1px solid var(--ink);
+  }
+  @media (max-width:640px){
+    .entry-form{grid-template-columns:1fr 1fr;}
+    .entry-form .field.span2, .entry-form .field.span3{grid-column:span 2;}
+    .form-row-3, .form-row-modstato, .form-row-importi{grid-template-columns:1fr 1fr;}
+    .table-scroll{max-height:none;overflow:visible;border:none;}
+    .table-scroll thead th{position:static;}
+    table, thead, tbody, th, td, tr{display:block;}
+    #panel-medical .table-scroll table{min-width:0;}
+    thead{display:none;}
+    tr{border-bottom:1px solid var(--line);padding:10px 0;}
+    tr.subtotal-row{border:none;}
+    td{border:none;padding:3px 0;}
+    .summary{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<div id="auth-gate" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--page-bg);">
+  <div style="width:100%;max-width:360px;padding:2rem;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+      <div style="width:44px;height:44px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><path d="M14 20c0-2.8 1.8-4.8 4-4.8s4 2 4 4.8"/></svg>
+      </div>
+      <div>
+        <p style="font-size:18px;font-weight:500;margin:0;">Family Dashboard</p>
+        <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;">Accedi al tuo registro personale</p>
+      </div>
+    </div>
+    <div id="auth-error" style="display:none;background:var(--stamp-soft);color:var(--stamp);padding:10px 12px;border-radius:6px;font-size:13px;margin-bottom:14px;"></div>
+    <div class="field" style="margin-bottom:12px;">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="tuaemail@esempio.it" style="width:100%;">
+    </div>
+    <div class="field" style="margin-bottom:18px;">
+      <label>Password</label>
+      <input type="password" id="auth-password" placeholder="Almeno 6 caratteri" style="width:100%;">
+    </div>
+    <button class="btn" id="auth-login-btn" style="width:100%;margin-bottom:8px;">Accedi</button>
+    <button class="btn ghost" id="auth-register-btn" style="width:100%;margin-bottom:18px;">Crea un nuovo account</button>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;color:var(--ink-soft);font-size:12px;">
+      <div style="flex:1;height:1px;background:var(--line);"></div>oppure<div style="flex:1;height:1px;background:var(--line);"></div>
+    </div>
+    <button class="btn ghost" id="auth-google-btn" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Accedi con Google
+    </button>
+  </div>
+</div>
+
+<div id="app-content" style="display:none;">
+<div id="logout-bar" style="display:none;align-items:center;justify-content:flex-end;gap:10px;padding:8px 24px;background:var(--paper);font-size:12.5px;color:var(--ink-soft);">
+  <span id="logout-email"></span>
+  <button class="btn ghost small" id="logout-btn" style="padding:4px 10px;">Esci</button>
+</div>
+<div class="wrap">
+  <header>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div style="width:52px;height:52px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><path d="M14 20c0-2.8 1.8-4.8 4-4.8s4 2 4 4.8"/></svg>
+        </div>
+        <div>
+          <h1 style="margin:0;">Family Dashboard</h1>
+          <p style="margin:4px 0 0;">Scadenze ricorrenti e rimborsi spese mediche in un unico posto.</p>
+        </div>
+      </div>
+      <button class="btn ghost" id="toggle-backup-panel" style="white-space:nowrap;">⤓ Backup dati</button>
+    </div>
+  </header>
+
+  <div id="backup-panel" style="display:none;margin:0 0 28px;padding:18px;background:var(--paper-raised);border:1px solid var(--line);border-radius:6px;">
+    <p style="margin:0 0 12px;font-size:13px;color:var(--ink-soft);">
+      Prima di pubblicare o ripubblicare l'app, esporta un backup: se lo storage dovesse azzerarsi, potrai ripristinarlo qui in pochi secondi senza reinserire nulla a mano.
+    </p>
+    <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <button type="button" class="btn" id="backup-export-btn">Genera backup</button>
+      <button type="button" class="btn ghost" id="backup-copy-btn">Copia backup</button>
+      <a id="backup-download-link" class="btn ghost" href="#" download="registro-pagamenti-backup.csv" style="text-decoration:none;">Scarica file .csv</a>
+    </div>
+    <textarea id="backup-export-text" readonly rows="4" style="width:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;padding:10px;border:1px solid var(--line);border-radius:4px;margin-bottom:16px;" placeholder="Clicca 'Genera backup' per creare il testo da copiare o scaricare."></textarea>
+    <hr style="border:none;border-top:1px solid var(--line);margin:0 0 16px;">
+    <p style="margin:0 0 8px;font-size:13px;color:var(--ink-soft);">Per ripristinare un backup, incolla qui il testo e clicca "Importa" (sovrascrive tutti i dati attuali, con conferma):</p>
+    <textarea id="backup-import-text" rows="4" style="width:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;padding:10px;border:1px solid var(--line);border-radius:4px;margin-bottom:10px;" placeholder="Incolla qui il testo CSV del backup"></textarea>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button type="button" class="btn" id="backup-import-btn">Importa backup</button>
+    </div>
+    <p id="backup-feedback" style="margin:10px 0 0;font-size:13px;"></p>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <nav class="tabs">
+    <button class="tab-btn" data-tab="recurring"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>Pagamenti ricorrenti</button>
+    <button class="tab-btn active" data-tab="medical"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Spese mediche</button>
+    <button class="tab-btn" data-tab="bilancio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><line x1="4" y1="20" x2="20" y2="20"/><line x1="7" y1="20" x2="7" y2="12"/><line x1="12" y1="20" x2="12" y2="6"/><line x1="17" y1="20" x2="17" y2="15"/></svg>Bilancio annuale</button>
+    <button class="tab-btn" data-tab="contratti"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><path d="M6 2h9l5 5v15H6z"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>Contratti a scadenza</button>
+  </nav>
+
+  <section class="panel" id="panel-recurring">
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th data-sort-key="nome">Voce <span class="sort-ind"></span></th><th data-sort-key="scadenza">Scadenza <span class="sort-ind"></span></th><th data-sort-key="importo">Importo <span class="sort-ind"></span></th><th data-sort-key="ricorrenza">Ricorrenza <span class="sort-ind"></span></th><th data-sort-key="stato">Stato <span class="sort-ind"></span></th><th></th>
+        </tr>
+      </thead>
+      <tbody id="recurring-body"></tbody>
+    </table>
+    </div>
+    <button class="add-toggle" id="toggle-recurring-form">+ Aggiungi pagamento</button>
+    <div class="entry-form" id="recurring-form">
+      <div class="field">
+        <label>Voce</label>
+        <input list="preset-recurring" id="rf-nome" placeholder="es. TARI">
+        <datalist id="preset-recurring">
+          <option value="TARI"><option value="Bollo auto"><option value="Assicurazione auto">
+          <option value="Assicurazione casa"><option value="Condominio"><option value="Altro">
+        </datalist>
+      </div>
+      <div class="field">
+        <label>Scadenza</label>
+        <input type="date" id="rf-scadenza">
+      </div>
+      <div class="field">
+        <label>Importo (€)</label>
+        <input type="number" step="0.01" id="rf-importo">
+      </div>
+      <div class="field">
+        <label>Ricorrenza</label>
+        <select id="rf-ricorrenza">
+          <option>Annuale</option><option>Semestrale</option><option>Mensile</option><option>Una tantum</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Stato</label>
+        <select id="rf-stato">
+          <option value="da_pagare">Da pagare</option>
+          <option value="pagato">Pagato</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Note</label>
+        <input id="rf-note" placeholder="opzionale">
+      </div>
+      <div class="field span3">
+        <label style="color:var(--stamp);">Blocco pagamento</label>
+        <label style="display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:4px;padding:8px 10px;background:var(--stamp-soft);color:var(--stamp);">
+          <input type="checkbox" id="rf-bloccato" style="width:auto;"> Blocca definitivamente questo pagamento (non più modificabile né eliminabile)
+        </label>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn ghost" id="rf-cancel">Annulla</button>
+        <button type="button" class="btn" id="rf-save">Salva</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel active" id="panel-medical">
+    <div class="filter-bar">
+      <label style="margin-right:8px;">Richiedente</label>
+      <select id="medical-filter">
+        <option value="">Tutti</option>
+      </select>
+      <label style="margin-left:18px;margin-right:8px;">Stato pratica</label>
+      <select id="medical-filter-stato">
+        <option value="">Tutti</option>
+      </select>
+      <label style="margin-left:18px;margin-right:8px;">Anno</label>
+      <select id="medical-filter-anno">
+        <option value="">Tutti</option>
+      </select>
+      <label style="margin-left:18px;margin-right:8px;">Prestazione</label>
+      <input type="text" id="medical-filter-prestazione" placeholder="cerca..." style="width:130px;">
+      <label style="margin-left:18px;margin-right:8px;">Documento</label>
+      <input type="text" id="medical-filter-documento" placeholder="cerca..." style="width:130px;">
+      <label style="margin-left:18px;display:flex;align-items:center;gap:6px;">
+        <input type="checkbox" id="medical-filter-hide-closed" style="width:auto;"> Nascondi pratiche chiuse completamente
+      </label>
+    </div>
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th data-sort-key="dataDocumento">Data <span class="sort-ind"></span></th><th data-sort-key="documento">Documento <span class="sort-ind"></span></th><th data-sort-key="richiedente">Richiedente <span class="sort-ind"></span></th><th data-sort-key="descrizione">Prestazione <span class="sort-ind"></span></th><th data-sort-key="modalita">Modalità <span class="sort-ind"></span></th><th data-sort-key="stato">Stato pratica <span class="sort-ind"></span></th><th data-sort-key="totale">Totale <span class="sort-ind"></span></th><th data-sort-key="fasiRichiesto">FASI richiesto <span class="sort-ind"></span></th><th data-sort-key="fasiPagato">FASI pagato <span class="sort-ind"></span></th><th data-sort-key="richiestoSecondo">2° liv. richiesto <span class="sort-ind"></span></th><th data-sort-key="assRimborsato">2° liv. pagato <span class="sort-ind"></span></th><th data-sort-key="residuo">Residuo <span class="sort-ind"></span></th><th data-sort-key="quotaMamma">Quota Pizzinat <span class="sort-ind"></span></th><th></th>
+        </tr>
+      </thead>
+      <tbody id="medical-body"></tbody>
+    </table>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="add-toggle" id="toggle-medical-form" style="flex:1;min-width:180px;">+ Aggiungi spesa medica</button>
+      <button class="add-toggle" id="toggle-medical-import" style="flex:1;min-width:180px;">+ Importa più righe insieme</button>
+      <button class="add-toggle" id="generate-mamma-email" style="flex:1;min-width:180px;">✉ Genera email per mamma di Sara</button>
+    </div>
+    <div id="mamma-email-panel" style="display:none;margin-top:14px;padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:6px;">
+      <p style="margin:0 0 10px;font-size:13px;color:var(--ink-soft);">
+        Basata sulle pratiche di Sara <strong>chiuse completamente</strong> con un residuo non rimborsato, tra quelle mostrate coi filtri sopra. Il modo affidabile per usare questa email è: "Copia testo" qui sotto, poi incollala tu stesso in una nuova email a cristina.pizzinat@gmail.com.
+      </p>
+      <label style="display:block;margin-bottom:4px;">Oggetto</label>
+      <input id="mamma-email-subject" readonly style="width:100%;margin-bottom:10px;">
+      <label style="display:block;margin-bottom:4px;">Corpo del messaggio</label>
+      <textarea id="mamma-email-body" readonly rows="10" style="width:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;padding:10px;border:1px solid var(--line);border-radius:4px;"></textarea>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px;">
+        <button type="button" class="btn" id="mamma-email-copy">Copia testo</button>
+        <button type="button" class="btn ghost" id="mamma-email-mark-sent">Segna come inviata</button>
+        <a id="mamma-email-open" class="btn ghost" href="#" style="text-decoration:none;">Prova ad aprire il programma di posta</a>
+      </div>
+      <p id="mamma-email-feedback" style="margin:10px 0 0;font-size:13px;"></p>
+    </div>
+    <div id="medical-import-panel" style="display:none;margin-top:14px;padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:6px;">
+      <p style="margin:0 0 10px;font-size:13px;color:var(--ink-soft);">
+        Una riga per spesa, campi separati da <strong>punto e virgola</strong>, in quest'ordine:<br>
+        Data (aaaa-mm-gg) ; Tipo documento ; Numero documento ; Richiedente ; Prestazione ; Modalità (Diretta/Indiretta) ; Totale ; Pagato FASI ; Pagato 2° livello ; Stato
+        (usa da_aprire_fasi / aperta_fasi / chiusa_fasi / da_aprire_secondo / aperta_secondo / chiusa_secondo / chiusa_completa)
+      </p>
+      <textarea id="medical-import-text" rows="6" style="width:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;padding:10px;border:1px solid var(--line);border-radius:4px;" placeholder="2026-09-01;Fattura;12345;Ela;Visita Dermatologica;Indiretta;120.00;80.00;0.00;aperta_fasi"></textarea>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px;">
+        <button type="button" class="btn ghost" id="medical-import-cancel">Annulla</button>
+        <button type="button" class="btn" id="medical-import-confirm">Importa righe</button>
+      </div>
+      <p id="medical-import-feedback" style="margin:10px 0 0;font-size:13px;"></p>
+    </div>
+    <div class="entry-form" id="medical-form">
+      <div class="form-section">
+        <div class="form-row form-row-3">
+          <div class="field">
+            <label>Richiedente</label>
+            <input list="preset-richiedente" id="mf-richiedente">
+            <datalist id="preset-richiedente">
+              <option value="Stefano"><option value="Ela"><option value="Sara">
+            </datalist>
+          </div>
+          <div class="field">
+            <label>Tipo documento</label>
+            <select id="mf-tipodoc">
+              <option>Fattura</option><option>Ricevuta</option><option>Scontrino</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Numero documento</label>
+            <input id="mf-numerodoc" placeholder="es. 41212">
+          </div>
+        </div>
+        <div class="form-row form-row-3">
+          <div class="field">
+            <label>Data documento</label>
+            <input type="date" id="mf-data">
+          </div>
+          <div class="field span2">
+            <label>Prestazione</label>
+            <input list="preset-prestazione" id="mf-descrizione" placeholder="es. Visita cardiologica">
+            <datalist id="preset-prestazione">
+              <option value="Visita Cardiologica"><option value="Visita Fisiatrica"><option value="Esami Sangue">
+              <option value="Psicologa"><option value="Pulizia Denti"><option value="Ciclo Fisioterapia">
+              <option value="Eco Addome"><option value="Farmaci">
+            </datalist>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <p class="form-section-title">Modalità e stato</p>
+        <div class="form-row form-row-modstato">
+          <div class="field">
+            <label>Modalità</label>
+            <select id="mf-modalita">
+              <option value="Indiretta">Indiretta (anticipo e chiedo rimborso)</option>
+              <option value="Diretta">Diretta (paga FASI al fornitore)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Stato pratica</label>
+            <select id="mf-stato">
+              <option value="da_aprire_fasi">FASI — da aprire</option>
+              <option value="aperta_fasi">FASI — aperta, in attesa di risposta</option>
+              <option value="chiusa_fasi">FASI — chiusa</option>
+              <option value="da_aprire_secondo">2° Livello — da aprire</option>
+              <option value="aperta_secondo">2° Livello — aperta, in attesa di risposta</option>
+              <option value="chiusa_secondo">2° Livello — chiusa</option>
+              <option value="chiusa_completa">Pratica chiusa completamente</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <p class="form-section-title">Importi</p>
+        <p class="form-section-hint">I campi in grigio si calcolano da soli.</p>
+        <div class="form-row form-row-importi">
+          <div class="field">
+            <label>Totale fattura (€)</label>
+            <input type="number" step="0.01" id="mf-totale">
+          </div>
+          <div class="field">
+            <label>Richiesto FASI (€)</label>
+            <input type="text" id="mf-fasi-richiesto" disabled>
+          </div>
+          <div class="field">
+            <label>Pagato da FASI (€)</label>
+            <input type="number" step="0.01" id="mf-fasi-pagato" value="0">
+          </div>
+          <div class="field">
+            <label>FASI rifiutato</label>
+            <label style="display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:4px;padding:8px 10px;height:36px;box-sizing:border-box;">
+              <input type="checkbox" id="mf-fasi-rifiutato" style="width:auto;"> Sì
+            </label>
+          </div>
+        </div>
+        <div class="form-row form-row-importi">
+          <div class="field">
+            <label>Richiesta 2° livello (€)</label>
+            <input type="text" id="mf-secondo-richiesto" disabled>
+          </div>
+          <div class="field">
+            <label>Pagato dal 2° livello (€)</label>
+            <input type="number" step="0.01" id="mf-ass-rimborsato" value="0">
+          </div>
+          <div class="field">
+            <label>Residuo (€)</label>
+            <input type="text" id="mf-residuo" disabled>
+          </div>
+          <div class="field">
+            <label>2° livello rifiutato</label>
+            <label style="display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:4px;padding:8px 10px;height:36px;box-sizing:border-box;">
+              <input type="checkbox" id="mf-secondo-rifiutato" style="width:auto;"> Sì
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <p class="form-section-title">Segnalazione a mamma di Sara</p>
+        <div class="form-row-mamma">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap;">
+            <input type="checkbox" id="mf-mamma-inviata" style="width:auto;"> Segnalata
+          </label>
+          <input type="date" id="mf-mamma-data" style="flex:1;">
+        </div>
+      </div>
+
+      <div class="form-section">
+        <p class="form-section-title">Blocco pratica</p>
+        <p class="form-section-hint">Una volta bloccata, questa riga non potrà più essere modificata né eliminata. Usalo solo quando la pratica è davvero definitiva.</p>
+        <div class="form-row-mamma" style="background:var(--stamp-soft);">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap;color:var(--stamp);">
+            <input type="checkbox" id="mf-bloccata" style="width:auto;"> Blocca definitivamente questa pratica
+          </label>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" id="mf-cancel">Annulla</button>
+        <button type="button" class="btn" id="mf-save">Salva</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-bilancio">
+    <div class="filter-bar">
+      <label style="margin-right:8px;">Anno</label>
+      <select id="bilancio-filter-anno">
+        <option value="">Tutti</option>
+      </select>
+    </div>
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th data-sort-key="anno">Anno <span class="sort-ind"></span></th>
+          <th data-sort-key="conto">Conto <span class="sort-ind"></span></th>
+          <th data-sort-key="entrate">Entrate <span class="sort-ind"></span></th>
+          <th data-sort-key="uscite">Uscite <span class="sort-ind"></span></th>
+          <th data-sort-key="risparmio">Risparmio <span class="sort-ind"></span></th>
+          <th>Dettaglio</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="bilancio-body"></tbody>
+    </table>
+    </div>
+    <button class="add-toggle" id="toggle-bilancio-form">+ Aggiungi bilancio conto</button>
+    <div class="entry-form" id="bilancio-form">
+      <div class="form-section">
+        <div class="form-row form-row-3">
+          <div class="field">
+            <label>Anno</label>
+            <input type="number" id="bf-anno" placeholder="es. 2026">
+          </div>
+          <div class="field span2">
+            <label>Conto</label>
+            <input list="preset-conto" id="bf-conto" placeholder="es. Fineco">
+            <datalist id="preset-conto">
+              <option value="Fineco"><option value="Mediolanum">
+            </datalist>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <label style="display:flex;align-items:center;gap:6px;margin-bottom:12px;">
+          <input type="checkbox" id="bf-usa-mensile" style="width:auto;"> Inserisci il dettaglio mensile (facoltativo)
+        </label>
+        <div id="bf-mensile-wrap" style="display:none;margin-bottom:16px;">
+          <p class="form-section-hint">Se compili anche solo un mese, i totali annui qui sotto si calcolano da soli sommando i mesi.</p>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+            <div class="field"><label>Gennaio</label><div style="display:flex;gap:4px;"><input type="number" step="0.01" id="bf-mese-0-entrate" placeholder="Entrate"><input type="number" step="0.01" id="bf-mese-0-uscite" placeholder="Uscite"></div></div>
+            <div class="field"><label>Febbraio</label><div style="display:flex;gap:4px;"><input type="number" step="0.01" id="bf-mese-1-entrate" placeholder="Entrate"><input type="number" step="0.01" id="bf-mese-1-uscite" placeholder="Uscite"></div></div>
+            <div class="field"><label>Marzo</label><div style="display:flex;gap:4px;"><input type="number" step="0.01" id="bf-mese-2-entrate" placeholder="Entrate"><input type="number" step="0.01" id="bf-mese-2-uscite" placeholder="Uscite"></div></div>
+            <div class="field"><label>Aprile</label><div style="display:flex;gap:4px;"><input type="number" step="0.01" id="bf-mese-3-entrate" placeholder="Entrate"><input type="number" step="0.01" id="bf-mese-3-uscite" placeholder="Uscite"></div></div>
+            <div class="field"><label>Maggio</label><div style="display:flex;gap:4px;"><input type="number" step="0.01" id="bf-mese-4-entrate" placeholder="Entrate"><input type="number" step="0.01" id="bf-mese-4-uscite" placeholder="Uscite"></div></div>
+            <div class="field"><label>Giugno</label><div style="display:flex;gap:4px;"><input type="number" step="0.01" id="bf-mese-5-entrate" placeholder="Entrate"><input type="number" step="0.01" id="bf-mese-5-uscite" placeholder="Uscite"></div></div>
+            <div class="field"><label>Luglio</label><div style="display:flex;gap:4px;"><input type="number" step="0.01" id="bf-mese-6-entrate" placeholder="Entrate"><input type="number" step="0.01" id="bf-mese-6-uscite" placeholder="Uscite"></div></div>
+            <div class="field"><label>Agosto</label><div style="display:flex;gap:4px;"><input type="number" step="0.01" id="bf-mese-7-entrate" placeholder="Entrate"><input type="number" step="0.01" id="bf-mese-7-uscite" placeholder="Uscite"></div></div>
+            <div class="field"><label>Settembre</label><div style="display:flex;gap:4px;"><input type="number" step="0.01" id="bf-mese-8-entrate" placeholder="Entrate"><input type="number" step="0.01" id="bf-mese-8-uscite" placeholder="Uscite"></div></div>
+            <div class="field"><label>Ottobre</label><div style="display:flex;gap:4px;"><input type="number" step="0.01" id="bf-mese-9-entrate" placeholder="Entrate"><input type="number" step="0.01" id="bf-mese-9-uscite" placeholder="Uscite"></div></div>
+            <div class="field"><label>Novembre</label><div style="display:flex;gap:4px;"><input type="number" step="0.01" id="bf-mese-10-entrate" placeholder="Entrate"><input type="number" step="0.01" id="bf-mese-10-uscite" placeholder="Uscite"></div></div>
+            <div class="field"><label>Dicembre</label><div style="display:flex;gap:4px;"><input type="number" step="0.01" id="bf-mese-11-entrate" placeholder="Entrate"><input type="number" step="0.01" id="bf-mese-11-uscite" placeholder="Uscite"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <p class="form-section-title">Totali annui</p>
+        <div class="form-row form-row-3">
+          <div class="field">
+            <label>Entrate annue (€)</label>
+            <input type="number" step="0.01" id="bf-entrate" value="0">
+          </div>
+          <div class="field">
+            <label>Uscite annue (€)</label>
+            <input type="number" step="0.01" id="bf-uscite" value="0">
+          </div>
+          <div class="field">
+            <label>Risparmio (€)</label>
+            <input type="text" id="bf-risparmio" disabled>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <p class="form-section-title" style="color:var(--stamp);">Blocco bilancio</p>
+        <label style="display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:4px;padding:8px 10px;background:var(--stamp-soft);color:var(--stamp);">
+          <input type="checkbox" id="bf-bloccato" style="width:auto;"> Blocca definitivamente questo bilancio (non più modificabile né eliminabile)
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" id="bf-cancel">Annulla</button>
+        <button type="button" class="btn" id="bf-save">Salva</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-contratti">
+    <div class="filter-bar">
+      <label style="margin-right:8px;">Tipo</label>
+      <select id="contratti-filter-tipo">
+        <option value="">Tutti</option>
+      </select>
+    </div>
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th data-sort-key="tipo">Tipo <span class="sort-ind"></span></th>
+          <th data-sort-key="controparte">Fornitore/Controparte <span class="sort-ind"></span></th>
+          <th data-sort-key="riferimento">Riferimento <span class="sort-ind"></span></th>
+          <th data-sort-key="dataInizio">Inizio <span class="sort-ind"></span></th>
+          <th data-sort-key="dataFine">Fine/Scadenza <span class="sort-ind"></span></th>
+          <th data-sort-key="dataDisdetta">Limite disdetta <span class="sort-ind"></span></th>
+          <th data-sort-key="canone">Canone mensile <span class="sort-ind"></span></th>
+          <th data-sort-key="prezzoUnitario">Prezzo unitario <span class="sort-ind"></span></th>
+          <th data-sort-key="note">Note <span class="sort-ind"></span></th>
+          <th>Stato contratto</th>
+          <th>Stato disdetta</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="contratti-body"></tbody>
+    </table>
+    </div>
+    <button class="add-toggle" id="toggle-contratti-form">+ Aggiungi contratto</button>
+    <div class="entry-form" id="contratti-form">
+      <div class="form-section">
+        <div class="form-row form-row-3">
+          <div class="field">
+            <label>Tipo</label>
+            <input list="preset-tipo-contratto" id="cf-tipo" placeholder="es. Luce">
+            <datalist id="preset-tipo-contratto">
+              <option value="Luce"><option value="Gas"><option value="Telefono">
+              <option value="Internet casa"><option value="TV"><option value="Affitto">
+              <option value="Assicurazione auto"><option value="Assicurazione casa"><option value="Altro">
+            </datalist>
+          </div>
+          <div class="field span2">
+            <label>Fornitore/Controparte</label>
+            <input id="cf-controparte" placeholder="es. Enel, proprietario casa...">
+          </div>
+        </div>
+        <div class="form-row form-row-3">
+          <div class="field span3">
+            <label>Riferimento (facoltativo)</label>
+            <input id="cf-riferimento" placeholder="es. POD/PDR, indirizzo immobile, numero contratto">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <p class="form-section-title">Date</p>
+        <div class="form-row form-row-3">
+          <div class="field">
+            <label>Data inizio</label>
+            <input type="date" id="cf-data-inizio">
+          </div>
+          <div class="field">
+            <label>Data fine/scadenza</label>
+            <input type="date" id="cf-data-fine">
+          </div>
+          <div class="field">
+            <label>Limite disdetta (facoltativo)</label>
+            <input type="date" id="cf-data-disdetta">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <p class="form-section-title">Prezzi</p>
+        <div class="form-row form-row-3">
+          <div class="field">
+            <label>Canone mensile (€, facoltativo)</label>
+            <input type="number" step="0.01" id="cf-canone">
+          </div>
+          <div class="field">
+            <label>Prezzo unitario (€, facoltativo)</label>
+            <input type="number" step="0.0001" id="cf-prezzo-unitario">
+          </div>
+          <div class="field">
+            <label>Unità di misura</label>
+            <select id="cf-unita-misura">
+              <option value="">—</option>
+              <option value="kWh">€/kWh (luce)</option>
+              <option value="Smc">€/Smc (gas)</option>
+              <option value="Altro">Altro</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row form-row-3">
+          <div class="field span3">
+            <label>Note</label>
+            <input id="cf-note" placeholder="es. prezzo dopo la promo, referente da chiamare...">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" id="cf-cancel">Annulla</button>
+        <button type="button" class="btn" id="cf-save">Salva</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script type="module">
+// --- Firebase: autenticazione e salvataggio dati (Firestore) ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC-1H-1PXb0_AjSU8LY8Zu4EsF06Tolv8k",
+  authDomain: "family-dashboard-882b5.firebaseapp.com",
+  projectId: "family-dashboard-882b5",
+  storageBucket: "family-dashboard-882b5.firebasestorage.app",
+  messagingSenderId: "951441964256",
+  appId: "1:951441964256:web:1f7de881a0d01b7c93e485"
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+
+const KEY_RECURRING = "recurring-payments";
+const KEY_MEDICAL = "medical-expenses";
+const KEY_BILANCIO = "annual-balance";
+const KEY_CONTRATTI = "expiring-contracts";
+let recurring = [];
+let medical = [];
+let bilancio = [];
+let contratti = [];
+let editingRecurringId = null;
+let editingMedicalId = null;
+let editingBilancioId = null;
+let editingContrattoId = null;
+
+// Salvataggio dati: ogni utente autenticato ha il proprio documento su
+// Firestore (users/{uid}), quindi i dati di persone diverse restano
+// sempre separati. Ogni campo ("chiave") corrisponde a una delle liste
+// dell'app (pagamenti, spese mediche, bilancio, contratti), salvata
+// come testo JSON, esattamente come funzionava prima con lo storage di Claude.
+const storageAdapter = {
+  async get(key){
+    if(!auth.currentUser) return null;
+    try{
+      const snap = await getDoc(doc(db, 'users', auth.currentUser.uid));
+      if(!snap.exists()) return null;
+      const value = snap.data()[key];
+      return value !== undefined ? {key, value} : null;
+    }catch(e){
+      console.error('Errore lettura da Firestore', e);
+      return null;
+    }
+  },
+  async set(key, value){
+    if(!auth.currentUser) throw new Error('Utente non autenticato');
+    await setDoc(doc(db, 'users', auth.currentUser.uid), {[key]: value}, {merge:true});
+    return {key, value};
+  }
+};
+
+function showNotice(msg, type){
+  const isError = type !== 'success';
+  let el = document.getElementById('save-warning');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'save-warning';
+    document.body.appendChild(el);
+  }
+  el.style.cssText = `position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:${isError ? 'var(--stamp-soft)' : 'var(--teal-soft)'};color:${isError ? 'var(--stamp)' : 'var(--teal)'};border:1px solid ${isError ? 'var(--stamp)' : 'var(--teal)'};padding:10px 18px;border-radius:6px;font-size:13.5px;z-index:999;max-width:90vw;`;
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(el._hideTimer);
+  el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+function showSaveWarning(msg){
+  showNotice(msg, 'error');
+}
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function euro(n){ return (Number(n)||0).toLocaleString('it-IT', {style:'currency', currency:'EUR'}); }
+function fmtDate(d){ if(!d) return '—'; const parts=d.split('-'); return parts.length===3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d; }
+function daysUntil(d){ const today=new Date(); today.setHours(0,0,0,0); const target=new Date(d); return Math.round((target-today)/86400000); }
+
+async function loadData(){
+  try{ const r = await storageAdapter.get(KEY_RECURRING, false); recurring = r ? JSON.parse(r.value) : []; }
+  catch(e){ recurring = []; }
+  try{ const r = await storageAdapter.get(KEY_MEDICAL, false); medical = r ? JSON.parse(r.value) : []; }
+  catch(e){ medical = []; }
+  try{ const r = await storageAdapter.get(KEY_BILANCIO, false); bilancio = r ? JSON.parse(r.value) : []; }
+  catch(e){ bilancio = []; }
+  try{ const r = await storageAdapter.get(KEY_CONTRATTI, false); contratti = r ? JSON.parse(r.value) : []; }
+  catch(e){ contratti = []; }
+}
+async function saveRecurring(){
+  try{ await storageAdapter.set(KEY_RECURRING, JSON.stringify(recurring), false); }
+  catch(e){ console.error('Errore salvataggio pagamenti', e); showSaveWarning('Il salvataggio non è riuscito. Riprova o ricarica la pagina.'); }
+}
+async function saveMedical(){
+  try{ await storageAdapter.set(KEY_MEDICAL, JSON.stringify(medical), false); }
+  catch(e){ console.error('Errore salvataggio spese mediche', e); showSaveWarning('Il salvataggio non è riuscito. Riprova o ricarica la pagina.'); }
+}
+async function saveBilancio(){
+  try{ await storageAdapter.set(KEY_BILANCIO, JSON.stringify(bilancio), false); }
+  catch(e){ console.error('Errore salvataggio bilancio', e); showSaveWarning('Il salvataggio non è riuscito. Riprova o ricarica la pagina.'); }
+}
+async function saveContratti(){
+  try{ await storageAdapter.set(KEY_CONTRATTI, JSON.stringify(contratti), false); }
+  catch(e){ console.error('Errore salvataggio contratti', e); showSaveWarning('Il salvataggio non è riuscito. Riprova o ricarica la pagina.'); }
+}
+
+function renderSummary(){
+  const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab || 'recurring';
+  const el = document.getElementById('summary');
+
+  if(activeTab === 'recurring'){
+    const upcoming = recurring.filter(p => p.stato==='da_pagare' && daysUntil(p.scadenza) >= 0 && daysUntil(p.scadenza) <= 30);
+    const overdue = recurring.filter(p => p.stato==='da_pagare' && daysUntil(p.scadenza) < 0);
+    const daPagareTotale = recurring.filter(p => p.stato==='da_pagare').reduce((s,p)=> s + (Number(p.importo)||0), 0);
+    el.innerHTML = `
+      <div class="summary-item ${overdue.length ? 'warn' : ''}">
+        <span class="summary-num">${overdue.length}</span>
+        <span class="summary-label">Pagamenti scaduti</span>
+      </div>
+      <div class="summary-item ${upcoming.length ? 'pend' : ''}">
+        <span class="summary-num">${upcoming.length}</span>
+        <span class="summary-label">In scadenza nei 30 giorni</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-num">${euro(daPagareTotale)}</span>
+        <span class="summary-label">Totale ancora da pagare</span>
+      </div>
+    `;
+  } else if(activeTab === 'medical'){
+    const fasiAperte = medical.filter(m => ['da_aprire_fasi','aperta_fasi'].includes(m.stato)).length;
+    const secondoAperte = medical.filter(m => ['da_aprire_secondo','aperta_secondo'].includes(m.stato)).length;
+    const pendenteFasi = medical
+      .filter(m => ['da_aprire_fasi','aperta_fasi'].includes(m.stato))
+      .reduce((sum, m) => {
+        const {totale, fasiPagato} = medicalRowNumbers(m);
+        return sum + Math.max(0, totale - fasiPagato);
+      }, 0);
+    const pendenteSecondo = medical
+      .filter(m => ['da_aprire_secondo','aperta_secondo'].includes(m.stato))
+      .reduce((sum, m) => {
+        const {richiestoSecondo, assRimborsato} = medicalRowNumbers(m);
+        return sum + Math.max(0, richiestoSecondo - assRimborsato);
+      }, 0);
+    const daRichiedereMamma = medical.reduce((sum, m) => {
+      const eSara = (m.richiedente||'').trim().toLowerCase() === 'sara';
+      if(!eSara || m.stato !== 'chiusa_completa' || m.mammaInviata) return sum;
+      const {residuo} = medicalRowNumbers(m);
+      return sum + (residuo > 0.004 ? residuo/2 : 0);
+    }, 0);
+    el.innerHTML = `
+      <div class="summary-item ${fasiAperte ? 'pend' : ''}">
+        <span class="summary-num">${fasiAperte}</span>
+        <span class="summary-label">In attesa di rimborso FASI</span>
+      </div>
+      <div class="summary-item ${secondoAperte ? 'pend' : ''}">
+        <span class="summary-num">${secondoAperte}</span>
+        <span class="summary-label">In attesa di rimborso 2° livello</span>
+      </div>
+      <div class="summary-item ${pendenteFasi > 0 ? 'pend' : ''}">
+        <span class="summary-num">${euro(pendenteFasi)}</span>
+        <span class="summary-label">Ancora da rimborsare da FASI</span>
+      </div>
+      <div class="summary-item ${pendenteSecondo > 0 ? 'pend' : ''}">
+        <span class="summary-num">${euro(pendenteSecondo)}</span>
+        <span class="summary-label">Ancora da rimborsare dal 2° livello</span>
+      </div>
+      <div class="summary-item ${daRichiedereMamma > 0 ? 'pend' : ''}">
+        <span class="summary-num">${euro(daRichiedereMamma)}</span>
+        <span class="summary-label">Da richiedere a mamma di Sara</span>
+      </div>
+    `;
+  } else if(activeTab === 'bilancio'){
+    const anni = [...new Set(bilancio.map(b => b.anno))].sort((a,b)=>b-a);
+    const ultimoAnno = anni[0];
+    const risparmioUltimoAnno = bilancio.filter(b => b.anno === ultimoAnno).reduce((s,b)=> s + (Number(b.entrate)||0) - (Number(b.uscite)||0), 0);
+    const risparmioTotale = bilancio.reduce((s,b)=> s + (Number(b.entrate)||0) - (Number(b.uscite)||0), 0);
+    el.innerHTML = `
+      <div class="summary-item">
+        <span class="summary-num">${bilancio.length}</span>
+        <span class="summary-label">Conti registrati</span>
+      </div>
+      <div class="summary-item ${risparmioUltimoAnno < 0 ? 'warn' : ''}">
+        <span class="summary-num">${ultimoAnno ? euro(risparmioUltimoAnno) : '—'}</span>
+        <span class="summary-label">Risparmio ${ultimoAnno || 'anno più recente'}</span>
+      </div>
+      <div class="summary-item ${risparmioTotale < 0 ? 'warn' : ''}">
+        <span class="summary-num">${euro(risparmioTotale)}</span>
+        <span class="summary-label">Risparmio totale storico</span>
+      </div>
+    `;
+  } else if(activeTab === 'contratti'){
+    const scaduti = contratti.filter(c => c.dataFine && daysUntil(c.dataFine) < 0).length;
+    const inScadenza = contratti.filter(c => c.dataFine && daysUntil(c.dataFine) >= 0 && daysUntil(c.dataFine) <= 90).length;
+    const disdetteUrgenti = contratti.filter(c => c.dataDisdetta && daysUntil(c.dataDisdetta) >= 0 && daysUntil(c.dataDisdetta) <= 90).length;
+    const totaleCanoni = contratti.reduce((s,c) => s + (Number(c.canone)||0), 0);
+    el.innerHTML = `
+      <div class="summary-item ${scaduti ? 'warn' : ''}">
+        <span class="summary-num">${scaduti}</span>
+        <span class="summary-label">Contratti scaduti</span>
+      </div>
+      <div class="summary-item ${inScadenza ? 'pend' : ''}">
+        <span class="summary-num">${inScadenza}</span>
+        <span class="summary-label">In scadenza nei 90 giorni</span>
+      </div>
+      <div class="summary-item ${disdetteUrgenti ? 'pend' : ''}">
+        <span class="summary-num">${disdetteUrgenti}</span>
+        <span class="summary-label">Disdette entro 90 giorni</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-num">${euro(totaleCanoni)}</span>
+        <span class="summary-label">Totale canoni mensili</span>
+      </div>
+    `;
+  }
+}
+
+function statusBadgeRecurring(p){
+  if(p.stato==='pagato') return `<span class="badge paid">Pagato</span>`;
+  const d = daysUntil(p.scadenza);
+  if(d < 0) return `<span class="badge overdue">Scaduto</span>`;
+  if(d <= 30) return `<span class="badge soon">Tra ${d} giorni</span>`;
+  return `<span class="badge pending">Da pagare</span>`;
+}
+function rowClassRecurring(p){
+  if(p.stato==='pagato') return 'row-ok';
+  const d = daysUntil(p.scadenza);
+  if(d < 0) return 'row-overdue';
+  if(d <= 30) return 'row-soon';
+  return '';
+}
+const STATI_PRATICA = {
+  da_aprire_fasi:     {label:'FASI — da aprire', cls:'pending'},
+  aperta_fasi:        {label:'FASI — aperta, in attesa di risposta', cls:'pending'},
+  chiusa_fasi:        {label:'FASI — chiusa', cls:'refunded'},
+  da_aprire_secondo:  {label:'2° Livello — da aprire', cls:'pending'},
+  aperta_secondo:     {label:'2° Livello — aperta, in attesa di risposta', cls:'pending'},
+  chiusa_secondo:     {label:'2° Livello — chiusa', cls:'refunded'},
+  chiusa_completa:    {label:'Pratica chiusa completamente', cls:'refunded'}
+};
+function statoPraticaInfo(stato){
+  return STATI_PRATICA[stato] || {label: stato || '—', cls:'pending'};
+}
+function richiedenti(){
+  return [...new Set(medical.map(m => m.richiedente).filter(Boolean))].sort();
+}
+function refreshMedicalFilterOptions(){
+  const sel = document.getElementById('medical-filter');
+  const current = sel.value;
+  const names = richiedenti();
+  sel.innerHTML = `<option value="">Tutti</option>` + names.map(n => `<option value="${n}">${n}</option>`).join('');
+  if(names.includes(current)) sel.value = current;
+
+  const selStato = document.getElementById('medical-filter-stato');
+  const currentStato = selStato.value;
+  selStato.innerHTML = `<option value="">Tutti</option>` +
+    Object.keys(STATI_PRATICA).map(k => `<option value="${k}">${STATI_PRATICA[k].label}</option>`).join('');
+  if(Object.keys(STATI_PRATICA).includes(currentStato)) selStato.value = currentStato;
+
+  const selAnno = document.getElementById('medical-filter-anno');
+  const currentAnno = selAnno.value;
+  const anni = [...new Set(medical.map(m => (m.dataDocumento||'').slice(0,4)).filter(Boolean))].sort().reverse();
+  selAnno.innerHTML = `<option value="">Tutti</option>` + anni.map(a => `<option value="${a}">${a}</option>`).join('');
+  if(anni.includes(currentAnno)) selAnno.value = currentAnno;
+}
+
+function getFilteredMedical(){
+  const filterName = document.getElementById('medical-filter').value;
+  const filterStato = document.getElementById('medical-filter-stato').value;
+  const filterAnno = document.getElementById('medical-filter-anno').value;
+  const filterPrestazione = document.getElementById('medical-filter-prestazione').value.trim().toLowerCase();
+  const filterDocumento = document.getElementById('medical-filter-documento').value.trim().toLowerCase();
+  const hideClosed = document.getElementById('medical-filter-hide-closed').checked;
+  let filtered = filterName ? medical.filter(m => m.richiedente===filterName) : medical;
+  if(filterStato) filtered = filtered.filter(m => m.stato===filterStato);
+  if(filterAnno) filtered = filtered.filter(m => (m.dataDocumento||'').slice(0,4)===filterAnno);
+  if(filterPrestazione) filtered = filtered.filter(m => (m.descrizione||'').toLowerCase().includes(filterPrestazione));
+  if(filterDocumento) filtered = filtered.filter(m => `${m.tipoDocumento||''} ${m.numeroDocumento||''}`.toLowerCase().includes(filterDocumento));
+  if(hideClosed) filtered = filtered.filter(m => m.stato !== 'chiusa_completa');
+  return filtered;
+}
+
+function medicalRowNumbers(m){
+  const totale = Number(m.totale)||0;
+  const fasiRichiesto = totale;
+  const fasiPagato = Number(m.fasi.pagato)||0;
+  const assRimborsato = Number(m.secondoLivello.rimborsato)||0;
+  const fasiConclusa = !['da_aprire_fasi','aperta_fasi'].includes(m.stato);
+  const richiestoSecondo = fasiConclusa ? Math.max(0, fasiRichiesto - fasiPagato) : 0;
+  const residuo = Math.max(0, totale - fasiPagato - assRimborsato);
+  return {totale, fasiRichiesto, fasiPagato, assRimborsato, richiestoSecondo, residuo, fasiConclusa};
+}
+
+let confirmingRecurringDeleteId = null;
+let confirmingMedicalDeleteId = null;
+let confirmingLockMedical = false;
+let confirmingLockRecurring = false;
+let confirmingLockBilancio = false;
+let recurringSortKey = 'scadenza';
+let recurringSortDir = 'asc';
+let medicalSortKey = 'dataDocumento';
+let medicalSortDir = 'desc';
+
+function recurringSortValue(p, key){
+  switch(key){
+    case 'nome': return (p.nome||'').toLowerCase();
+    case 'scadenza': return new Date(p.scadenza).getTime() || 0;
+    case 'importo': return Number(p.importo) || 0;
+    case 'ricorrenza': return (p.ricorrenza||'').toLowerCase();
+    case 'stato': return p.stato === 'pagato' ? 1 : 0;
+    default: return 0;
+  }
+}
+function medicalSortValue(m, key){
+  const {totale, fasiRichiesto, fasiPagato, richiestoSecondo, assRimborsato, residuo} = medicalRowNumbers(m);
+  const eSara = (m.richiedente||'').trim().toLowerCase() === 'sara';
+  const praticaConclusa = m.stato === 'chiusa_completa';
+  const quotaMamma = (eSara && praticaConclusa) ? residuo / 2 : 0;
+  switch(key){
+    case 'dataDocumento': return new Date(m.dataDocumento).getTime() || 0;
+    case 'documento': return `${m.tipoDocumento||''} ${m.numeroDocumento||''}`.toLowerCase();
+    case 'richiedente': return (m.richiedente||'').toLowerCase();
+    case 'descrizione': return (m.descrizione||'').toLowerCase();
+    case 'modalita': return (m.modalita||'').toLowerCase();
+    case 'stato': return statoPraticaInfo(m.stato).label.toLowerCase();
+    case 'totale': return totale;
+    case 'fasiRichiesto': return fasiRichiesto;
+    case 'fasiPagato': return fasiPagato;
+    case 'richiestoSecondo': return richiestoSecondo;
+    case 'assRimborsato': return assRimborsato;
+    case 'residuo': return residuo;
+    case 'quotaMamma': return quotaMamma;
+    default: return 0;
+  }
+}
+function applySort(arr, valueFn, key, dir){
+  return [...arr].sort((a,b) => {
+    const va = valueFn(a, key), vb = valueFn(b, key);
+    const cmp = typeof va === 'string' ? va.localeCompare(vb) : va - vb;
+    return dir === 'asc' ? cmp : -cmp;
+  });
+}
+function updateSortIndicators(panelSelector, key, dir){
+  document.querySelectorAll(`${panelSelector} thead th[data-sort-key]`).forEach(th => {
+    const ind = th.querySelector('.sort-ind');
+    if(!ind) return;
+    ind.textContent = th.dataset.sortKey === key ? (dir === 'asc' ? '▲' : '▼') : '';
+  });
+}
+document.querySelectorAll('#panel-recurring thead th[data-sort-key]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sortKey;
+    if(recurringSortKey === key){ recurringSortDir = recurringSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { recurringSortKey = key; recurringSortDir = 'asc'; }
+    renderRecurring();
+  });
+});
+document.querySelectorAll('#panel-medical thead th[data-sort-key]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sortKey;
+    if(medicalSortKey === key){ medicalSortDir = medicalSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { medicalSortKey = key; medicalSortDir = 'asc'; }
+    renderMedical();
+  });
+});
+
+function renderRecurring(){
+  const body = document.getElementById('recurring-body');
+  if(recurring.length===0){
+    body.innerHTML = `<tr><td colspan="6"><div class="empty-state">Nessun pagamento registrato.</div></td></tr>`;
+    updateSortIndicators('#panel-recurring', recurringSortKey, recurringSortDir);
+    return;
+  }
+  const sorted = applySort(recurring, recurringSortValue, recurringSortKey, recurringSortDir);
+  body.innerHTML = sorted.map(p => `
+    <tr class="${rowClassRecurring(p)}" data-id="${p.id}">
+      <td>${p.nome}${p.note ? `<br><span style="color:var(--ink-soft);font-size:12.5px">${p.note}</span>` : ''}</td>
+      <td>${fmtDate(p.scadenza)}</td>
+      <td class="amount">${euro(p.importo)}</td>
+      <td>${p.ricorrenza}</td>
+      <td>${statusBadgeRecurring(p)}</td>
+      <td>
+        <div class="row-actions">
+          ${p.bloccato ? `
+            <span class="doc-ref" title="Pagamento bloccato: non modificabile">🔒 Bloccato</span>
+          ` : p.id === confirmingRecurringDeleteId ? `
+            <span style="color:var(--stamp);font-size:13px;margin-right:4px;">Confermi?</span>
+            <button class="btn small" data-action="confirm-delete-recurring" data-id="${p.id}">Sì, elimina</button>
+            <button class="btn small ghost" data-action="cancel-delete-recurring" data-id="${p.id}">Annulla</button>
+          ` : `
+            ${p.stato==='da_pagare' ? `<button class="btn small" data-action="mark-paid" data-id="${p.id}">Segna pagato</button>` : ''}
+            <button class="btn small ghost" data-action="edit-recurring" data-id="${p.id}">Modifica</button>
+            <button class="btn small ghost danger" data-action="delete-recurring" data-id="${p.id}">Elimina</button>
+          `}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  updateSortIndicators('#panel-recurring', recurringSortKey, recurringSortDir);
+}
+
+function renderMedical(){
+  refreshMedicalFilterOptions();
+  const filterName = document.getElementById('medical-filter').value;
+  const filterStato = document.getElementById('medical-filter-stato').value;
+  const filterAnno = document.getElementById('medical-filter-anno').value;
+  const body = document.getElementById('medical-body');
+  const filtered = getFilteredMedical();
+  if(filtered.length===0){
+    body.innerHTML = `<tr><td colspan="14"><div class="empty-state">Nessuna spesa medica registrata.</div></td></tr>`;
+    updateSortIndicators('#panel-medical', medicalSortKey, medicalSortDir);
+    return;
+  }
+  const sorted = applySort(filtered, medicalSortValue, medicalSortKey, medicalSortDir);
+  let totTotale=0, totFasiRichiesto=0, totFasi=0, totRichiestoSecondo=0, totAss=0, totResiduo=0, totQuotaMamma=0;
+  const rows = sorted.map(m => {
+    const {totale, fasiRichiesto, fasiPagato, assRimborsato, richiestoSecondo, residuo} = medicalRowNumbers(m);
+    const eSara = (m.richiedente||'').trim().toLowerCase() === 'sara';
+    const praticaConclusa = m.stato === 'chiusa_completa';
+    const quotaMamma = (eSara && praticaConclusa) ? residuo / 2 : 0;
+    totTotale += totale; totFasiRichiesto += fasiRichiesto; totFasi += fasiPagato; totRichiestoSecondo += richiestoSecondo; totAss += assRimborsato; totResiduo += residuo;
+    if(eSara && praticaConclusa) totQuotaMamma += quotaMamma;
+    return `
+    <tr data-id="${m.id}">
+      <td>${fmtDate(m.dataDocumento)}</td>
+      <td class="doc-ref">${m.tipoDocumento} n. ${m.numeroDocumento}</td>
+      <td>${m.richiedente}</td>
+      <td>${m.descrizione}</td>
+      <td><span class="modalita-badge">${m.modalita}</span></td>
+      <td>${(() => { const s = statoPraticaInfo(m.stato); return `<span class="badge ${s.cls}">${s.label}</span>`; })()}</td>
+      <td class="amount">${euro(totale)}</td>
+      <td class="amount">${euro(fasiRichiesto)}</td>
+      <td class="amount">${m.fasiRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(fasiPagato)}</td>
+      <td class="amount">${euro(richiestoSecondo)}</td>
+      <td class="amount">${m.secondoRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(assRimborsato)}</td>
+      <td class="amount">${euro(residuo)}</td>
+      <td class="amount">${eSara && praticaConclusa && residuo > 0 ? `${euro(quotaMamma)}${m.mammaInviata ? `<br><span class="doc-ref">inviata${m.mammaInviataData ? ' il ' + fmtDate(m.mammaInviataData) : ''}</span>` : ''}` : '—'}</td>
+      <td>
+        <div class="row-actions">
+          ${m.bloccata ? `
+            <span class="doc-ref" title="Pratica bloccata: non modificabile">🔒 Bloccata</span>
+          ` : m.id === confirmingMedicalDeleteId ? `
+            <span style="color:var(--stamp);font-size:13px;margin-right:4px;">Confermi?</span>
+            <button class="btn small" data-action="confirm-delete-medical" data-id="${m.id}">Sì, elimina</button>
+            <button class="btn small ghost" data-action="cancel-delete-medical" data-id="${m.id}">Annulla</button>
+          ` : `
+            <button class="btn small ghost" data-action="edit-medical" data-id="${m.id}">Modifica</button>
+            <button class="btn small ghost danger" data-action="delete-medical" data-id="${m.id}">Elimina</button>
+          `}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  const subtotal = `
+    <tr class="subtotal-row">
+      <td></td><td></td><td></td><td>Totale${filterName || filterStato || filterAnno ? ' — ' + [filterName, filterStato ? statoPraticaInfo(filterStato).label : '', filterAnno].filter(Boolean).join(', ') : ''}</td><td></td><td></td>
+      <td class="amount">${euro(totTotale)}</td>
+      <td class="amount">${euro(totFasiRichiesto)}</td>
+      <td class="amount">${euro(totFasi)}</td>
+      <td class="amount">${euro(totRichiestoSecondo)}</td>
+      <td class="amount">${euro(totAss)}</td>
+      <td class="amount">${euro(totResiduo)}</td>
+      <td class="amount">${totQuotaMamma > 0 ? euro(totQuotaMamma) : '—'}</td>
+      <td></td>
+    </tr>`;
+  body.innerHTML = rows + subtotal;
+  updateSortIndicators('#panel-medical', medicalSortKey, medicalSortDir);
+}
+
+let confirmingBilancioDeleteId = null;
+let bilancioSortKey = 'anno';
+let bilancioSortDir = 'desc';
+
+function bilancioRowNumbers(b){
+  const entrate = Number(b.entrate) || 0;
+  const uscite = Number(b.uscite) || 0;
+  const risparmio = entrate - uscite;
+  return {entrate, uscite, risparmio};
+}
+function bilancioSortValue(b, key){
+  const {entrate, uscite, risparmio} = bilancioRowNumbers(b);
+  switch(key){
+    case 'anno': return Number(b.anno) || 0;
+    case 'conto': return (b.conto||'').toLowerCase();
+    case 'entrate': return entrate;
+    case 'uscite': return uscite;
+    case 'risparmio': return risparmio;
+    default: return 0;
+  }
+}
+function getFilteredBilancio(){
+  const filterAnno = document.getElementById('bilancio-filter-anno').value;
+  return filterAnno ? bilancio.filter(b => String(b.anno) === filterAnno) : bilancio;
+}
+function refreshBilancioFilterOptions(){
+  const sel = document.getElementById('bilancio-filter-anno');
+  const current = sel.value;
+  const anni = [...new Set(bilancio.map(b => String(b.anno)))].sort().reverse();
+  sel.innerHTML = `<option value="">Tutti</option>` + anni.map(a => `<option value="${a}">${a}</option>`).join('');
+  if(anni.includes(current)) sel.value = current;
+}
+document.querySelectorAll('#panel-bilancio thead th[data-sort-key]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sortKey;
+    if(bilancioSortKey === key){ bilancioSortDir = bilancioSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { bilancioSortKey = key; bilancioSortDir = 'asc'; }
+    renderBilancio();
+  });
+});
+
+function renderBilancio(){
+  refreshBilancioFilterOptions();
+  const body = document.getElementById('bilancio-body');
+  const filtered = getFilteredBilancio();
+  if(filtered.length===0){
+    body.innerHTML = `<tr><td colspan="7"><div class="empty-state">Nessun bilancio registrato.</div></td></tr>`;
+    updateSortIndicators('#panel-bilancio', bilancioSortKey, bilancioSortDir);
+    return;
+  }
+  const sorted = applySort(filtered, bilancioSortValue, bilancioSortKey, bilancioSortDir);
+  let totEntrate=0, totUscite=0;
+  const rows = sorted.map(b => {
+    const {entrate, uscite, risparmio} = bilancioRowNumbers(b);
+    totEntrate += entrate; totUscite += uscite;
+    const haMensile = Array.isArray(b.entrateMensili) && b.entrateMensili.some(v => v);
+    return `
+    <tr data-id="${b.id}">
+      <td>${b.anno}</td>
+      <td>${b.conto}</td>
+      <td class="amount">${euro(entrate)}</td>
+      <td class="amount">${euro(uscite)}</td>
+      <td class="amount" style="color:${risparmio < 0 ? 'var(--stamp)' : 'var(--teal)'};font-weight:600;">${risparmio >= 0 ? '+' : ''}${euro(risparmio)}</td>
+      <td>${haMensile ? '<span class="badge paid">Mensile</span>' : '<span class="doc-ref">Solo annuale</span>'}</td>
+      <td>
+        <div class="row-actions">
+          ${b.bloccato ? `
+            <span class="doc-ref" title="Bilancio bloccato: non modificabile">🔒 Bloccato</span>
+          ` : b.id === confirmingBilancioDeleteId ? `
+            <span style="color:var(--stamp);font-size:13px;margin-right:4px;">Confermi?</span>
+            <button class="btn small" data-action="confirm-delete-bilancio" data-id="${b.id}">Sì, elimina</button>
+            <button class="btn small ghost" data-action="cancel-delete-bilancio" data-id="${b.id}">Annulla</button>
+          ` : `
+            <button class="btn small ghost" data-action="edit-bilancio" data-id="${b.id}">Modifica</button>
+            <button class="btn small ghost danger" data-action="delete-bilancio" data-id="${b.id}">Elimina</button>
+          `}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  const totRisparmio = totEntrate - totUscite;
+  const subtotal = `
+    <tr class="subtotal-row">
+      <td></td><td>Totale</td>
+      <td class="amount">${euro(totEntrate)}</td>
+      <td class="amount">${euro(totUscite)}</td>
+      <td class="amount" style="color:${totRisparmio < 0 ? 'var(--stamp)' : 'var(--teal)'};">${totRisparmio >= 0 ? '+' : ''}${euro(totRisparmio)}</td>
+      <td></td><td></td>
+    </tr>`;
+  body.innerHTML = rows + subtotal;
+  updateSortIndicators('#panel-bilancio', bilancioSortKey, bilancioSortDir);
+}
+
+let confirmingContrattoDeleteId = null;
+let contrattiSortKey = 'dataFine';
+let contrattiSortDir = 'asc';
+
+function statoContrattoInfo(c){
+  const d = daysUntil(c.dataFine);
+  if(d < 0) return {label:'Scaduto', cls:'overdue'};
+  if(d <= 90) return {label:'In scadenza', cls:'soon'};
+  return {label:'Attivo', cls:'paid'};
+}
+function statoDisdettaInfo(c){
+  const d = daysUntil(c.dataDisdetta);
+  if(d < 0) return {label:'Scaduta', cls:'overdue'};
+  if(d <= 90) return {label:'In scadenza', cls:'soon'};
+  return {label:'OK', cls:'paid'};
+}
+function contrattiSortValue(c, key){
+  switch(key){
+    case 'tipo': return (c.tipo||'').toLowerCase();
+    case 'controparte': return (c.controparte||'').toLowerCase();
+    case 'riferimento': return (c.riferimento||'').toLowerCase();
+    case 'dataInizio': return new Date(c.dataInizio).getTime() || 0;
+    case 'dataFine': return c.dataFine ? new Date(c.dataFine).getTime() : Infinity;
+    case 'dataDisdetta': return c.dataDisdetta ? new Date(c.dataDisdetta).getTime() : Infinity;
+    case 'canone': return Number(c.canone) || 0;
+    case 'prezzoUnitario': return Number(c.prezzoUnitario) || 0;
+    case 'note': return (c.note||'').toLowerCase();
+    default: return 0;
+  }
+}
+function getFilteredContratti(){
+  const filterTipo = document.getElementById('contratti-filter-tipo').value;
+  return filterTipo ? contratti.filter(c => c.tipo===filterTipo) : contratti;
+}
+function refreshContrattiFilterOptions(){
+  const sel = document.getElementById('contratti-filter-tipo');
+  const current = sel.value;
+  const tipi = [...new Set(contratti.map(c => c.tipo).filter(Boolean))].sort();
+  sel.innerHTML = `<option value="">Tutti</option>` + tipi.map(t => `<option value="${t}">${t}</option>`).join('');
+  if(tipi.includes(current)) sel.value = current;
+}
+document.querySelectorAll('#panel-contratti thead th[data-sort-key]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sortKey;
+    if(contrattiSortKey === key){ contrattiSortDir = contrattiSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { contrattiSortKey = key; contrattiSortDir = 'asc'; }
+    renderContratti();
+  });
+});
+
+function renderContratti(){
+  refreshContrattiFilterOptions();
+  const body = document.getElementById('contratti-body');
+  const filtered = getFilteredContratti();
+  if(filtered.length===0){
+    body.innerHTML = `<tr><td colspan="12"><div class="empty-state">Nessun contratto registrato.</div></td></tr>`;
+    updateSortIndicators('#panel-contratti', contrattiSortKey, contrattiSortDir);
+    return;
+  }
+  const sorted = applySort(filtered, contrattiSortValue, contrattiSortKey, contrattiSortDir);
+  const rows = sorted.map(c => {
+    const statoC = c.dataFine ? statoContrattoInfo(c) : null;
+    const statoD = c.dataDisdetta ? statoDisdettaInfo(c) : null;
+    const clsList = [statoC && statoC.cls, statoD && statoD.cls].filter(Boolean);
+    const worstCls = clsList.includes('overdue') ? 'overdue' : clsList.includes('soon') ? 'soon' : 'paid';
+    const rowCls = worstCls === 'overdue' ? 'row-overdue' : worstCls === 'soon' ? 'row-soon' : 'row-ok';
+    return `
+    <tr class="${rowCls}" data-id="${c.id}">
+      <td>${c.tipo}</td>
+      <td>${c.controparte}</td>
+      <td>${c.riferimento || '—'}</td>
+      <td>${fmtDate(c.dataInizio)}</td>
+      <td>${c.dataFine ? fmtDate(c.dataFine) : '—'}</td>
+      <td>${c.dataDisdetta ? fmtDate(c.dataDisdetta) : '—'}</td>
+      <td class="amount">${c.canone ? euro(c.canone) : '—'}</td>
+      <td class="amount">${c.prezzoUnitario ? `${c.prezzoUnitario.toString().replace('.',',')} €/${c.unitaMisura || '?'}` : '—'}</td>
+      <td>${c.note || '—'}</td>
+      <td>${statoC ? `<span class="badge ${statoC.cls}">${statoC.label}</span>` : '—'}</td>
+      <td>${statoD ? `<span class="badge ${statoD.cls}">${statoD.label}</span>` : '—'}</td>
+      <td>
+        <div class="row-actions">
+          ${c.id === confirmingContrattoDeleteId ? `
+            <span style="color:var(--stamp);font-size:13px;margin-right:4px;">Confermi?</span>
+            <button class="btn small" data-action="confirm-delete-contratto" data-id="${c.id}">Sì, elimina</button>
+            <button class="btn small ghost" data-action="cancel-delete-contratto" data-id="${c.id}">Annulla</button>
+          ` : `
+            <button class="btn small ghost" data-action="edit-contratto" data-id="${c.id}">Modifica</button>
+            <button class="btn small ghost danger" data-action="delete-contratto" data-id="${c.id}">Elimina</button>
+          `}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  body.innerHTML = rows;
+  updateSortIndicators('#panel-contratti', contrattiSortKey, contrattiSortDir);
+}
+
+function renderAll(){
+  renderSummary();
+  renderRecurring();
+  renderMedical();
+  renderBilancio();
+  renderContratti();
+}
+
+// Tabs
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    renderSummary();
+  });
+});
+
+// Recurring form
+const recurringForm = document.getElementById('recurring-form');
+function resetRecurringForm(){
+  document.getElementById('rf-nome').value = '';
+  document.getElementById('rf-scadenza').value = '';
+  document.getElementById('rf-importo').value = '';
+  document.getElementById('rf-ricorrenza').value = 'Annuale';
+  document.getElementById('rf-stato').value = 'da_pagare';
+  document.getElementById('rf-note').value = '';
+  document.getElementById('rf-bloccato').checked = false;
+  confirmingLockRecurring = false;
+  document.getElementById('rf-save').textContent = 'Salva';
+}
+document.getElementById('toggle-recurring-form').addEventListener('click', () => {
+  editingRecurringId = null;
+  resetRecurringForm();
+  recurringForm.classList.add('open');
+});
+document.getElementById('rf-cancel').addEventListener('click', () => recurringForm.classList.remove('open'));
+function showFormError(msg){
+  showSaveWarning(msg);
+}
+
+document.getElementById('rf-save').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const nome = document.getElementById('rf-nome').value.trim();
+  const scadenza = document.getElementById('rf-scadenza').value;
+  const importo = parseFloat(document.getElementById('rf-importo').value);
+  if(!nome){ showFormError('Inserisci il nome della voce (es. TARI).'); return; }
+  if(!scadenza){ showFormError('Inserisci la data di scadenza.'); return; }
+  if(isNaN(importo)){ showFormError('Inserisci un importo valido.'); return; }
+  const vuoleBloccare = document.getElementById('rf-bloccato').checked;
+  const saveBtnRf = document.getElementById('rf-save');
+  if(vuoleBloccare && !confirmingLockRecurring){
+    confirmingLockRecurring = true;
+    saveBtnRf.textContent = 'Confermi il blocco? Clicca di nuovo per salvare';
+    showFormError('Una volta salvato bloccato, questo pagamento non potrà più essere modificato né eliminato.');
+    return;
+  }
+  const entry = {
+    id: editingRecurringId || uid(),
+    nome,
+    scadenza,
+    importo,
+    ricorrenza: document.getElementById('rf-ricorrenza').value,
+    stato: document.getElementById('rf-stato').value,
+    note: document.getElementById('rf-note').value.trim(),
+    bloccato: vuoleBloccare
+  };
+  if(editingRecurringId){
+    recurring = recurring.map(p => p.id===editingRecurringId ? entry : p);
+  } else {
+    recurring.push(entry);
+  }
+  await saveRecurring();
+  recurringForm.classList.remove('open');
+  resetRecurringForm();
+  editingRecurringId = null;
+  renderAll();
+});
+
+// Medical form
+const medicalForm = document.getElementById('medical-form');
+function resetMedicalForm(){
+  document.getElementById('mf-richiedente').value = '';
+  document.getElementById('mf-tipodoc').value = 'Fattura';
+  document.getElementById('mf-numerodoc').value = '';
+  document.getElementById('mf-data').value = '';
+  document.getElementById('mf-descrizione').value = '';
+  document.getElementById('mf-modalita').value = 'Indiretta';
+  document.getElementById('mf-totale').value = '';
+  document.getElementById('mf-fasi-pagato').value = '0';
+  document.getElementById('mf-fasi-rifiutato').checked = false;
+  document.getElementById('mf-ass-rimborsato').value = '0';
+  document.getElementById('mf-secondo-rifiutato').checked = false;
+  document.getElementById('mf-stato').value = 'da_aprire_fasi';
+  document.getElementById('mf-mamma-inviata').checked = false;
+  document.getElementById('mf-mamma-data').value = '';
+  document.getElementById('mf-bloccata').checked = false;
+  confirmingLockMedical = false;
+  document.getElementById('mf-save').textContent = 'Salva';
+  updateMedicalComputedFields();
+}
+
+function updateMedicalComputedFields(){
+  const totale = parseFloat(document.getElementById('mf-totale').value) || 0;
+  const fasiPagato = parseFloat(document.getElementById('mf-fasi-pagato').value) || 0;
+  const secondoPagato = parseFloat(document.getElementById('mf-ass-rimborsato').value) || 0;
+  const stato = document.getElementById('mf-stato').value;
+  const {fasiRichiesto, richiestoSecondo, residuo} = medicalRowNumbers({
+    totale, fasi: {pagato: fasiPagato}, secondoLivello: {rimborsato: secondoPagato}, stato
+  });
+  document.getElementById('mf-fasi-richiesto').value = euro(fasiRichiesto);
+  document.getElementById('mf-secondo-richiesto').value = euro(richiestoSecondo);
+  document.getElementById('mf-residuo').value = euro(residuo);
+}
+['mf-totale','mf-fasi-pagato','mf-ass-rimborsato','mf-stato'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateMedicalComputedFields);
+  document.getElementById(id).addEventListener('change', updateMedicalComputedFields);
+});
+
+document.getElementById('toggle-medical-form').addEventListener('click', () => {
+  editingMedicalId = null;
+  resetMedicalForm();
+  medicalForm.classList.add('open');
+});
+document.getElementById('mf-cancel').addEventListener('click', () => medicalForm.classList.remove('open'));
+document.getElementById('medical-filter').addEventListener('change', renderMedical);
+document.getElementById('medical-filter-stato').addEventListener('change', renderMedical);
+document.getElementById('medical-filter-anno').addEventListener('change', renderMedical);
+document.getElementById('medical-filter-hide-closed').addEventListener('change', renderMedical);
+document.getElementById('medical-filter-prestazione').addEventListener('input', renderMedical);
+document.getElementById('medical-filter-documento').addEventListener('input', renderMedical);
+
+// Generazione email per la mamma di Sara
+let lastMammaEmailIds = [];
+
+function buildMammaEmailContent(){
+  const candidates = getFilteredMedical().filter(m => {
+    const eSara = (m.richiedente||'').trim().toLowerCase() === 'sara';
+    return eSara && m.stato === 'chiusa_completa' && !m.mammaInviata && !m.bloccata;
+  }).map(m => {
+    const {residuo} = medicalRowNumbers(m);
+    return {m, residuo, quota: residuo/2};
+  }).filter(x => x.residuo > 0.004)
+    .sort((a,b) => new Date(a.m.dataDocumento) - new Date(b.m.dataDocumento));
+
+  if(candidates.length === 0) return null;
+
+  const filterAnno = document.getElementById('medical-filter-anno').value;
+  const periodo = filterAnno ? `anno ${filterAnno}` : 'tutte le pratiche chiuse';
+  const totaleQuota = candidates.reduce((s,x) => s + x.quota, 0);
+  const totaleResiduo = candidates.reduce((s,x) => s + x.residuo, 0);
+
+  const subject = `Rimborso spese mediche Sara${filterAnno ? ' - ' + filterAnno : ''}`;
+  const righe = candidates.map(x =>
+    `- ${fmtDate(x.m.dataDocumento)} | ${x.m.descrizione} | totale ${euro(x.m.totale)} | non rimborsato ${euro(x.residuo)} | tua quota (metà) ${euro(x.quota)}`
+  ).join('\n');
+  const body =
+`Ciao Cristina,
+
+ecco il riepilogo delle spese mediche di Sara non rimborsate né da FASI né dall'assicurazione di secondo livello (${periodo}):
+
+${righe}
+
+Totale non rimborsato: ${euro(totaleResiduo)}
+Tua quota (metà): ${euro(totaleQuota)}
+
+Grazie,
+Stefano`;
+
+  lastMammaEmailIds = candidates.map(x => x.m.id);
+  return {subject, body, count: candidates.length};
+}
+
+document.getElementById('generate-mamma-email').addEventListener('click', () => {
+  const panel = document.getElementById('mamma-email-panel');
+  if(panel.style.display === 'block'){
+    panel.style.display = 'none';
+    return;
+  }
+  const content = buildMammaEmailContent();
+  const feedback = document.getElementById('mamma-email-feedback');
+  if(!content){
+    panel.style.display = 'block';
+    document.getElementById('mamma-email-subject').value = '';
+    document.getElementById('mamma-email-body').value = '';
+    feedback.textContent = 'Nessuna pratica nuova da segnalare: o non ci sono pratiche di Sara chiuse con residuo, o sono già state tutte segnate come inviate in precedenza.';
+    document.getElementById('mamma-email-open').href = '#';
+    return;
+  }
+  panel.style.display = 'block';
+  document.getElementById('mamma-email-subject').value = content.subject;
+  document.getElementById('mamma-email-body').value = content.body;
+  const mailto = `mailto:cristina.pizzinat@gmail.com?subject=${encodeURIComponent(content.subject)}&body=${encodeURIComponent(content.body)}`;
+  document.getElementById('mamma-email-open').href = mailto;
+  feedback.textContent = `${content.count} pratic${content.count===1?'a trovata':'he trovate'} (non ancora segnalate in precedenza). Clicca "Copia testo", incolla in una nuova email a cristina.pizzinat@gmail.com e mandala dal tuo programma di posta. Dopo averla mandata, ricordati di premere "Segna come inviata".`;
+});
+
+document.getElementById('mamma-email-mark-sent').addEventListener('click', async () => {
+  const feedback = document.getElementById('mamma-email-feedback');
+  if(lastMammaEmailIds.length === 0){
+    feedback.textContent = 'Nessuna pratica da segnare: genera prima l\'email.';
+    return;
+  }
+  const oggi = new Date().toISOString().slice(0,10);
+  let count = 0;
+  medical = medical.map(m => {
+    if(lastMammaEmailIds.includes(m.id)){
+      count++;
+      return {...m, mammaInviata: true, mammaInviataData: oggi};
+    }
+    return m;
+  });
+  await saveMedical();
+  lastMammaEmailIds = [];
+  renderAll();
+  feedback.textContent = `${count} pratic${count===1?'a segnata':'he segnate'} come inviate. Non compariranno nella prossima email.`;
+});
+
+document.getElementById('mamma-email-copy').addEventListener('click', async () => {
+  const subject = document.getElementById('mamma-email-subject').value;
+  const body = document.getElementById('mamma-email-body').value;
+  const text = `Oggetto: ${subject}\n\n${body}`;
+  const feedback = document.getElementById('mamma-email-feedback');
+  try{
+    await navigator.clipboard.writeText(text);
+    feedback.textContent = 'Testo copiato negli appunti.';
+  }catch(e){
+    const ta = document.getElementById('mamma-email-body');
+    ta.focus();
+    ta.select();
+    feedback.textContent = 'Copia automatica non disponibile: seleziona il testo qui sopra e copialo manualmente (Ctrl/Cmd+C).';
+  }
+});
+
+// Importazione rapida a righe multiple
+const importPanel = document.getElementById('medical-import-panel');
+const importFeedback = document.getElementById('medical-import-feedback');
+document.getElementById('toggle-medical-import').addEventListener('click', () => {
+  importPanel.style.display = importPanel.style.display === 'none' ? 'block' : 'none';
+  importFeedback.textContent = '';
+});
+document.getElementById('medical-import-cancel').addEventListener('click', () => {
+  importPanel.style.display = 'none';
+  document.getElementById('medical-import-text').value = '';
+  importFeedback.textContent = '';
+});
+document.getElementById('medical-import-confirm').addEventListener('click', async () => {
+  const raw = document.getElementById('medical-import-text').value;
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  const validStati = Object.keys(STATI_PRATICA);
+  let added = 0, errors = [];
+  lines.forEach((line, idx) => {
+    const parts = line.split(';').map(p => p.trim());
+    if(parts.length < 10){
+      errors.push(`Riga ${idx+1}: servono 10 campi separati da ";", trovati ${parts.length}.`);
+      return;
+    }
+    const [dataDocumento, tipoDocumento, numeroDocumento, richiedente, descrizione, modalita, totaleStr, fasiStr, assStr, stato] = parts;
+    const totale = parseFloat(totaleStr.replace(',', '.'));
+    const fasiPagato = parseFloat(fasiStr.replace(',', '.'));
+    const assRimborsato = parseFloat(assStr.replace(',', '.'));
+    if(!dataDocumento || !richiedente || !descrizione || isNaN(totale)){
+      errors.push(`Riga ${idx+1}: dati mancanti o totale non numerico.`);
+      return;
+    }
+    if(!validStati.includes(stato)){
+      errors.push(`Riga ${idx+1}: stato "${stato}" non riconosciuto.`);
+      return;
+    }
+    medical.push({
+      id: uid(),
+      richiedente, tipoDocumento: tipoDocumento || 'Fattura', numeroDocumento: numeroDocumento || '',
+      dataDocumento, descrizione, modalita: modalita === 'Diretta' ? 'Diretta' : 'Indiretta',
+      totale, stato,
+      fasi: {pagato: isNaN(fasiPagato) ? 0 : fasiPagato},
+      secondoLivello: {rimborsato: isNaN(assRimborsato) ? 0 : assRimborsato}
+    });
+    added++;
+  });
+  if(added > 0){
+    await saveMedical();
+    renderAll();
+  }
+  importFeedback.innerHTML = `${added} rig${added===1?'a importata':'he importate'}.` +
+    (errors.length ? `<br><span style="color:var(--stamp)">${errors.join('<br>')}</span>` : '');
+  if(added > 0 && errors.length === 0){
+    document.getElementById('medical-import-text').value = '';
+  }
+});
+document.getElementById('mf-save').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const richiedente = document.getElementById('mf-richiedente').value.trim();
+  const dataDocumento = document.getElementById('mf-data').value;
+  const descrizione = document.getElementById('mf-descrizione').value.trim();
+  const totale = parseFloat(document.getElementById('mf-totale').value);
+  if(!richiedente){ showFormError('Inserisci il richiedente.'); return; }
+  if(!dataDocumento){ showFormError('Inserisci la data del documento.'); return; }
+  if(!descrizione){ showFormError('Inserisci la prestazione.'); return; }
+  if(isNaN(totale)){ showFormError('Inserisci un totale fattura valido.'); return; }
+  const vuoleBloccare = document.getElementById('mf-bloccata').checked;
+  const saveBtn = document.getElementById('mf-save');
+  if(vuoleBloccare && !confirmingLockMedical){
+    confirmingLockMedical = true;
+    saveBtn.textContent = 'Confermi il blocco? Clicca di nuovo per salvare';
+    showFormError('Una volta salvata bloccata, questa pratica non potrà più essere modificata né eliminata.');
+    return;
+  }
+  const entry = {
+    id: editingMedicalId || uid(),
+    richiedente,
+    tipoDocumento: document.getElementById('mf-tipodoc').value,
+    numeroDocumento: document.getElementById('mf-numerodoc').value.trim(),
+    dataDocumento,
+    descrizione,
+    modalita: document.getElementById('mf-modalita').value,
+    totale,
+    stato: document.getElementById('mf-stato').value,
+    fasi: {
+      pagato: parseFloat(document.getElementById('mf-fasi-pagato').value)||0
+    },
+    fasiRifiutato: document.getElementById('mf-fasi-rifiutato').checked,
+    secondoLivello: {
+      rimborsato: parseFloat(document.getElementById('mf-ass-rimborsato').value)||0
+    },
+    secondoRifiutato: document.getElementById('mf-secondo-rifiutato').checked,
+    mammaInviata: document.getElementById('mf-mamma-inviata').checked,
+    mammaInviataData: document.getElementById('mf-mamma-data').value || undefined,
+    bloccata: vuoleBloccare
+  };
+  if(editingMedicalId){
+    medical = medical.map(m => m.id===editingMedicalId ? entry : m);
+  } else {
+    medical.push(entry);
+  }
+  await saveMedical();
+  medicalForm.classList.remove('open');
+  resetMedicalForm();
+  editingMedicalId = null;
+  renderAll();
+});
+
+// Row actions (delegation)
+function nextScadenza(dateStr, ricorrenza){
+  const d = new Date(dateStr);
+  if(isNaN(d.getTime())) return null;
+  if(ricorrenza === 'Annuale') d.setFullYear(d.getFullYear() + 1);
+  else if(ricorrenza === 'Semestrale') d.setMonth(d.getMonth() + 6);
+  else if(ricorrenza === 'Mensile') d.setMonth(d.getMonth() + 1);
+  else return null;
+  return d.toISOString().slice(0, 10);
+}
+
+document.getElementById('recurring-body').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  const item = recurring.find(p => p.id===id);
+  if(!item) return;
+  if(item.bloccato) return;
+  if(action==='mark-paid'){
+    item.stato = 'pagato';
+    const nextDate = nextScadenza(item.scadenza, item.ricorrenza);
+    if(nextDate){
+      recurring.push({
+        id: uid(),
+        nome: item.nome,
+        scadenza: nextDate,
+        importo: item.importo,
+        ricorrenza: item.ricorrenza,
+        stato: 'da_pagare',
+        note: item.note
+      });
+    }
+    await saveRecurring();
+    renderAll();
+    if(nextDate){
+      showNotice(`Creata la prossima scadenza: ${item.nome} il ${fmtDate(nextDate)}.`, 'success');
+    }
+  } else if(action==='delete-recurring'){
+    confirmingRecurringDeleteId = id;
+    renderRecurring();
+  } else if(action==='confirm-delete-recurring'){
+    confirmingRecurringDeleteId = null;
+    recurring = recurring.filter(p => p.id!==id);
+    await saveRecurring();
+    renderAll();
+  } else if(action==='cancel-delete-recurring'){
+    confirmingRecurringDeleteId = null;
+    renderRecurring();
+  } else if(action==='edit-recurring'){
+    editingRecurringId = id;
+    document.getElementById('rf-nome').value = item.nome;
+    document.getElementById('rf-scadenza').value = item.scadenza;
+    document.getElementById('rf-importo').value = item.importo;
+    document.getElementById('rf-ricorrenza').value = item.ricorrenza;
+    document.getElementById('rf-stato').value = item.stato;
+    document.getElementById('rf-note').value = item.note || '';
+    document.getElementById('rf-bloccato').checked = false;
+    confirmingLockRecurring = false;
+    document.getElementById('rf-save').textContent = 'Salva';
+    recurringForm.classList.add('open');
+    recurringForm.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+});
+
+document.getElementById('medical-body').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  const item = medical.find(m => m.id===id);
+  if(!item) return;
+  if(item.bloccata) return;
+  if(action==='delete-medical'){
+    confirmingMedicalDeleteId = id;
+    renderMedical();
+  } else if(action==='confirm-delete-medical'){
+    confirmingMedicalDeleteId = null;
+    medical = medical.filter(m => m.id!==id);
+    await saveMedical();
+    renderAll();
+  } else if(action==='cancel-delete-medical'){
+    confirmingMedicalDeleteId = null;
+    renderMedical();
+  } else if(action==='edit-medical'){
+    if(item.bloccata) return;
+    editingMedicalId = id;
+    document.getElementById('mf-richiedente').value = item.richiedente;
+    document.getElementById('mf-tipodoc').value = item.tipoDocumento;
+    document.getElementById('mf-numerodoc').value = item.numeroDocumento;
+    document.getElementById('mf-data').value = item.dataDocumento;
+    document.getElementById('mf-descrizione').value = item.descrizione;
+    document.getElementById('mf-modalita').value = item.modalita;
+    document.getElementById('mf-totale').value = item.totale;
+    document.getElementById('mf-fasi-pagato').value = item.fasi.pagato;
+    document.getElementById('mf-fasi-rifiutato').checked = !!item.fasiRifiutato;
+    document.getElementById('mf-ass-rimborsato').value = item.secondoLivello.rimborsato;
+    document.getElementById('mf-secondo-rifiutato').checked = !!item.secondoRifiutato;
+    document.getElementById('mf-stato').value = item.stato;
+    document.getElementById('mf-mamma-inviata').checked = !!item.mammaInviata;
+    document.getElementById('mf-mamma-data').value = item.mammaInviataData || '';
+    document.getElementById('mf-bloccata').checked = false;
+    confirmingLockMedical = false;
+    document.getElementById('mf-save').textContent = 'Salva';
+    updateMedicalComputedFields();
+    medicalForm.classList.add('open');
+    medicalForm.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+});
+
+// Backup dati: esportazione e importazione manuale, indipendente dallo storage di Claude
+document.getElementById('toggle-backup-panel').addEventListener('click', () => {
+  const panel = document.getElementById('backup-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
+
+let confirmingBackupImport = false;
+
+const REC_CSV_COLS = ['id','nome','scadenza','importo','ricorrenza','stato','note','bloccato'];
+const MED_CSV_COLS = ['id','richiedente','tipoDocumento','numeroDocumento','dataDocumento','descrizione','modalita','totale','stato','fasiPagato','fasiRifiutato','secondoRimborsato','secondoRifiutato','mammaInviata','mammaInviataData','bloccata'];
+
+function csvEscape(value){
+  const s = (value === null || value === undefined) ? '' : String(value);
+  if(/[",\n]/.test(s)){
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+
+function parseCSVLine(line){
+  const result = [];
+  let cur = '';
+  let inQuotes = false;
+  for(let i=0; i<line.length; i++){
+    const ch = line[i];
+    if(inQuotes){
+      if(ch === '"'){
+        if(line[i+1] === '"'){ cur += '"'; i++; }
+        else { inQuotes = false; }
+      } else { cur += ch; }
+    } else {
+      if(ch === '"'){ inQuotes = true; }
+      else if(ch === ','){ result.push(cur); cur = ''; }
+      else { cur += ch; }
+    }
+  }
+  result.push(cur);
+  return result;
+}
+
+const BIL_CSV_COLS = ['id','anno','conto','entrate','uscite',
+  'entrateGen','entrateFeb','entrateMar','entrateApr','entrateMag','entrateGiu','entrateLug','entrateAgo','entrateSet','entrateOtt','entrateNov','entrateDic',
+  'usciteGen','usciteFeb','usciteMar','usciteApr','usciteMag','usciteGiu','usciteLug','usciteAgo','usciteSet','usciteOtt','usciteNov','usciteDic','bloccato'];
+const BIL_MESI_ENTRATE_KEYS = BIL_CSV_COLS.slice(5,17);
+const BIL_MESI_USCITE_KEYS = BIL_CSV_COLS.slice(17,29);
+const CONTR_CSV_COLS = ['id','tipo','controparte','riferimento','dataInizio','dataFine','dataDisdetta','canone','prezzoUnitario','unitaMisura','note'];
+
+function currentBackupCSV(){
+  const recRows = recurring.map(p => REC_CSV_COLS.map(c => csvEscape(p[c])).join(','));
+  const medRows = medical.map(m => MED_CSV_COLS.map(c => {
+    if(c === 'fasiPagato') return csvEscape(m.fasi ? m.fasi.pagato : 0);
+    if(c === 'fasiRifiutato') return csvEscape(m.fasiRifiutato ? 'true' : 'false');
+    if(c === 'secondoRimborsato') return csvEscape(m.secondoLivello ? m.secondoLivello.rimborsato : 0);
+    if(c === 'secondoRifiutato') return csvEscape(m.secondoRifiutato ? 'true' : 'false');
+    if(c === 'mammaInviata') return csvEscape(m.mammaInviata ? 'true' : 'false');
+    if(c === 'mammaInviataData') return csvEscape(m.mammaInviataData || '');
+    if(c === 'bloccata') return csvEscape(m.bloccata ? 'true' : 'false');
+    return csvEscape(m[c]);
+  }).join(','));
+  const bilRows = bilancio.map(b => BIL_CSV_COLS.map((c,idx) => {
+    const meseEntrateIdx = BIL_MESI_ENTRATE_KEYS.indexOf(c);
+    if(meseEntrateIdx !== -1) return csvEscape(b.entrateMensili && b.entrateMensili[meseEntrateIdx] !== null && b.entrateMensili[meseEntrateIdx] !== undefined ? b.entrateMensili[meseEntrateIdx] : '');
+    const meseUsciteIdx = BIL_MESI_USCITE_KEYS.indexOf(c);
+    if(meseUsciteIdx !== -1) return csvEscape(b.usciteMensili && b.usciteMensili[meseUsciteIdx] !== null && b.usciteMensili[meseUsciteIdx] !== undefined ? b.usciteMensili[meseUsciteIdx] : '');
+    return csvEscape(b[c]);
+  }).join(','));
+  const contrRows = contratti.map(c => CONTR_CSV_COLS.map(col => csvEscape(c[col])).join(','));
+  return `### PAGAMENTI RICORRENTI\n${REC_CSV_COLS.join(',')}\n${recRows.join('\n')}\n\n### SPESE MEDICHE\n${MED_CSV_COLS.join(',')}\n${medRows.join('\n')}\n\n### BILANCIO ANNUALE\n${BIL_CSV_COLS.join(',')}\n${bilRows.join('\n')}\n\n### CONTRATTI A SCADENZA\n${CONTR_CSV_COLS.join(',')}\n${contrRows.join('\n')}\n`;
+}
+
+function parseBackupCSV(text){
+  const markerMed = /###\s*SPESE MEDICHE/i;
+  const markerBil = /###\s*BILANCIO ANNUALE/i;
+  const markerContr = /###\s*CONTRATTI A SCADENZA/i;
+  if(!markerMed.test(text)){
+    throw new Error('Formato non riconosciuto: manca la sezione "### SPESE MEDICHE".');
+  }
+  const [recPart, afterMed] = text.split(markerMed);
+  let medPart = afterMed, bilPart = '', contrPart = '';
+  if(markerBil.test(afterMed)){
+    const parts = afterMed.split(markerBil);
+    medPart = parts[0];
+    let afterBil = parts[1] || '';
+    if(markerContr.test(afterBil)){
+      const parts2 = afterBil.split(markerContr);
+      bilPart = parts2[0];
+      contrPart = parts2[1] || '';
+    } else {
+      bilPart = afterBil;
+    }
+  }
+  const recBlock = recPart.replace(/###\s*PAGAMENTI RICORRENTI/i, '').trim();
+  const medBlock = medPart.trim();
+
+  const recLines = recBlock.split('\n').map(l => l.trim()).filter(l => l.length);
+  const recurringOut = recLines.length > 1 ? recLines.slice(1).map(line => {
+    const vals = parseCSVLine(line);
+    const obj = {};
+    REC_CSV_COLS.forEach((h,i) => obj[h] = vals[i] !== undefined ? vals[i] : '');
+    obj.importo = parseFloat(obj.importo) || 0;
+    obj.bloccato = obj.bloccato === 'true';
+    return obj;
+  }) : [];
+
+  const medLines = medBlock.split('\n').map(l => l.trim()).filter(l => l.length);
+  const medicalOut = medLines.length > 1 ? medLines.slice(1).map(line => {
+    const vals = parseCSVLine(line);
+    const raw = {};
+    MED_CSV_COLS.forEach((h,i) => raw[h] = vals[i] !== undefined ? vals[i] : '');
+    return {
+      id: raw.id,
+      richiedente: raw.richiedente,
+      tipoDocumento: raw.tipoDocumento,
+      numeroDocumento: raw.numeroDocumento,
+      dataDocumento: raw.dataDocumento,
+      descrizione: raw.descrizione,
+      modalita: raw.modalita,
+      totale: parseFloat(raw.totale) || 0,
+      stato: raw.stato,
+      fasi: {pagato: parseFloat(raw.fasiPagato) || 0},
+      fasiRifiutato: raw.fasiRifiutato === 'true',
+      secondoLivello: {rimborsato: parseFloat(raw.secondoRimborsato) || 0},
+      secondoRifiutato: raw.secondoRifiutato === 'true',
+      mammaInviata: raw.mammaInviata === 'true',
+      mammaInviataData: raw.mammaInviataData || undefined,
+      bloccata: raw.bloccata === 'true'
+    };
+  }) : [];
+
+  const bilLines = bilPart.trim().split('\n').map(l => l.trim()).filter(l => l.length);
+  const bilancioOut = bilLines.length > 1 ? bilLines.slice(1).map(line => {
+    const vals = parseCSVLine(line);
+    const raw = {};
+    BIL_CSV_COLS.forEach((h,i) => raw[h] = vals[i] !== undefined ? vals[i] : '');
+    const entrateMensili = BIL_MESI_ENTRATE_KEYS.map(k => raw[k] === '' || raw[k] === undefined ? null : parseFloat(raw[k]));
+    const usciteMensili = BIL_MESI_USCITE_KEYS.map(k => raw[k] === '' || raw[k] === undefined ? null : parseFloat(raw[k]));
+    const haMensile = entrateMensili.some(v => v !== null) || usciteMensili.some(v => v !== null);
+    return {
+      id: raw.id,
+      anno: parseInt(raw.anno, 10) || 0,
+      conto: raw.conto,
+      entrate: parseFloat(raw.entrate) || 0,
+      uscite: parseFloat(raw.uscite) || 0,
+      entrateMensili: haMensile ? entrateMensili : null,
+      usciteMensili: haMensile ? usciteMensili : null,
+      bloccato: raw.bloccato === 'true'
+    };
+  }) : [];
+
+  const contrLines = contrPart.trim().split('\n').map(l => l.trim()).filter(l => l.length);
+  const contrattiOut = contrLines.length > 1 ? contrLines.slice(1).map(line => {
+    const vals = parseCSVLine(line);
+    const raw = {};
+    CONTR_CSV_COLS.forEach((h,i) => raw[h] = vals[i] !== undefined ? vals[i] : '');
+    return {
+      id: raw.id,
+      tipo: raw.tipo,
+      controparte: raw.controparte,
+      riferimento: raw.riferimento,
+      dataInizio: raw.dataInizio,
+      dataFine: raw.dataFine || null,
+      dataDisdetta: raw.dataDisdetta || null,
+      canone: parseFloat(raw.canone) || 0,
+      prezzoUnitario: parseFloat(raw.prezzoUnitario) || 0,
+      unitaMisura: raw.unitaMisura || '',
+      note: raw.note
+    };
+  }) : [];
+
+  return {recurring: recurringOut, medical: medicalOut, bilancio: bilancioOut, contratti: contrattiOut};
+}
+
+document.getElementById('backup-export-btn').addEventListener('click', () => {
+  const csv = currentBackupCSV();
+  document.getElementById('backup-export-text').value = csv;
+  try{
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    document.getElementById('backup-download-link').href = url;
+  }catch(e){
+    console.error('Impossibile creare il link di download', e);
+  }
+  document.getElementById('backup-feedback').textContent = `Backup generato: ${recurring.length} pagamenti, ${medical.length} spese mediche, ${bilancio.length} bilanci, ${contratti.length} contratti. Copialo o scaricalo prima di pubblicare.`;
+});
+
+document.getElementById('backup-copy-btn').addEventListener('click', async () => {
+  const ta = document.getElementById('backup-export-text');
+  if(!ta.value){
+    showNotice('Genera prima il backup con il pulsante "Genera backup".', 'error');
+    return;
+  }
+  try{
+    await navigator.clipboard.writeText(ta.value);
+    document.getElementById('backup-feedback').textContent = 'Backup copiato negli appunti.';
+  }catch(e){
+    ta.focus();
+    ta.select();
+    document.getElementById('backup-feedback').textContent = 'Copia automatica non disponibile: il testo è selezionato, usa Ctrl/Cmd+C.';
+  }
+});
+
+document.getElementById('backup-import-btn').addEventListener('click', async () => {
+  const feedback = document.getElementById('backup-feedback');
+  const raw = document.getElementById('backup-import-text').value.trim();
+  if(!raw){
+    feedback.textContent = 'Incolla prima il testo del backup nel campo qui sopra.';
+    return;
+  }
+  let parsed;
+  try{
+    parsed = parseBackupCSV(raw);
+  }catch(e){
+    feedback.textContent = 'Il testo incollato non è nel formato atteso: ' + e.message;
+    return;
+  }
+  const haCurrentData = recurring.length > 0 || medical.length > 0 || bilancio.length > 0 || contratti.length > 0;
+  if(haCurrentData && !confirmingBackupImport){
+    confirmingBackupImport = true;
+    const btn = document.getElementById('backup-import-btn');
+    btn.textContent = 'Confermi? Clicca di nuovo per sovrascrivere';
+    feedback.textContent = 'Attenzione: questo sovrascriverà tutti i dati attualmente presenti nell\'app.';
+    setTimeout(() => {
+      if(confirmingBackupImport){
+        confirmingBackupImport = false;
+        btn.textContent = 'Importa backup';
+      }
+    }, 6000);
+    return;
+  }
+  confirmingBackupImport = false;
+  document.getElementById('backup-import-btn').textContent = 'Importa backup';
+  recurring = parsed.recurring;
+  medical = parsed.medical;
+  bilancio = parsed.bilancio || [];
+  contratti = parsed.contratti || [];
+  await saveRecurring();
+  await saveMedical();
+  await saveBilancio();
+  await saveContratti();
+  renderAll();
+  showNotice(`Backup importato: ${recurring.length} pagamenti, ${medical.length} spese mediche, ${bilancio.length} bilanci, ${contratti.length} contratti.`, 'success');
+  feedback.textContent = 'Importazione completata.';
+});
+
+// Bilancio annuale
+document.getElementById('bilancio-filter-anno').addEventListener('change', renderBilancio);
+
+const bilancioForm = document.getElementById('bilancio-form');
+const MESI_LABELS = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+
+function getMensileValues(){
+  const entrateMensili = [], usciteMensili = [];
+  for(let i=0;i<12;i++){
+    const eVal = document.getElementById(`bf-mese-${i}-entrate`).value;
+    const uVal = document.getElementById(`bf-mese-${i}-uscite`).value;
+    entrateMensili.push(eVal === '' ? null : parseFloat(eVal)||0);
+    usciteMensili.push(uVal === '' ? null : parseFloat(uVal)||0);
+  }
+  return {entrateMensili, usciteMensili};
+}
+function haQualcheMese(entrateMensili, usciteMensili){
+  return entrateMensili.some(v => v !== null) || usciteMensili.some(v => v !== null);
+}
+function updateBilancioComputedFields(){
+  const {entrateMensili, usciteMensili} = getMensileValues();
+  const usaMensile = document.getElementById('bf-usa-mensile').checked;
+  const entrateInput = document.getElementById('bf-entrate');
+  const usciteInput = document.getElementById('bf-uscite');
+  if(usaMensile && haQualcheMese(entrateMensili, usciteMensili)){
+    const sommaEntrate = entrateMensili.reduce((s,v)=> s + (v||0), 0);
+    const sommaUscite = usciteMensili.reduce((s,v)=> s + (v||0), 0);
+    entrateInput.value = sommaEntrate.toFixed(2);
+    usciteInput.value = sommaUscite.toFixed(2);
+    entrateInput.disabled = true;
+    usciteInput.disabled = true;
+  } else {
+    entrateInput.disabled = false;
+    usciteInput.disabled = false;
+  }
+  const entrate = parseFloat(entrateInput.value) || 0;
+  const uscite = parseFloat(usciteInput.value) || 0;
+  document.getElementById('bf-risparmio').value = euro(entrate - uscite);
+}
+document.getElementById('bf-usa-mensile').addEventListener('change', () => {
+  const checked = document.getElementById('bf-usa-mensile').checked;
+  document.getElementById('bf-mensile-wrap').style.display = checked ? 'block' : 'none';
+  updateBilancioComputedFields();
+});
+for(let i=0;i<12;i++){
+  ['entrate','uscite'].forEach(tipo => {
+    document.getElementById(`bf-mese-${i}-${tipo}`).addEventListener('input', updateBilancioComputedFields);
+  });
+}
+['bf-entrate','bf-uscite'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateBilancioComputedFields);
+});
+
+function resetBilancioForm(){
+  document.getElementById('bf-anno').value = new Date().getFullYear();
+  document.getElementById('bf-conto').value = '';
+  document.getElementById('bf-usa-mensile').checked = false;
+  document.getElementById('bf-mensile-wrap').style.display = 'none';
+  for(let i=0;i<12;i++){
+    document.getElementById(`bf-mese-${i}-entrate`).value = '';
+    document.getElementById(`bf-mese-${i}-uscite`).value = '';
+  }
+  document.getElementById('bf-entrate').value = '0';
+  document.getElementById('bf-entrate').disabled = false;
+  document.getElementById('bf-uscite').value = '0';
+  document.getElementById('bf-uscite').disabled = false;
+  document.getElementById('bf-bloccato').checked = false;
+  confirmingLockBilancio = false;
+  document.getElementById('bf-save').textContent = 'Salva';
+  updateBilancioComputedFields();
+}
+document.getElementById('toggle-bilancio-form').addEventListener('click', () => {
+  editingBilancioId = null;
+  resetBilancioForm();
+  bilancioForm.classList.add('open');
+});
+document.getElementById('bf-cancel').addEventListener('click', () => bilancioForm.classList.remove('open'));
+
+document.getElementById('bf-save').addEventListener('click', async () => {
+  const anno = parseInt(document.getElementById('bf-anno').value, 10);
+  const conto = document.getElementById('bf-conto').value.trim();
+  if(!anno || isNaN(anno)){ showFormError('Inserisci un anno valido.'); return; }
+  if(!conto){ showFormError('Inserisci il nome del conto.'); return; }
+  const vuoleBloccare = document.getElementById('bf-bloccato').checked;
+  const saveBtnBf = document.getElementById('bf-save');
+  if(vuoleBloccare && !confirmingLockBilancio){
+    confirmingLockBilancio = true;
+    saveBtnBf.textContent = 'Confermi il blocco? Clicca di nuovo per salvare';
+    showFormError('Una volta salvato bloccato, questo bilancio non potrà più essere modificato né eliminato.');
+    return;
+  }
+  const {entrateMensili, usciteMensili} = getMensileValues();
+  const usaMensile = document.getElementById('bf-usa-mensile').checked && haQualcheMese(entrateMensili, usciteMensili);
+  const entrate = parseFloat(document.getElementById('bf-entrate').value) || 0;
+  const uscite = parseFloat(document.getElementById('bf-uscite').value) || 0;
+  const entry = {
+    id: editingBilancioId || uid(),
+    anno, conto, entrate, uscite,
+    entrateMensili: usaMensile ? entrateMensili : null,
+    usciteMensili: usaMensile ? usciteMensili : null,
+    bloccato: vuoleBloccare
+  };
+  if(editingBilancioId){
+    bilancio = bilancio.map(b => b.id===editingBilancioId ? entry : b);
+  } else {
+    bilancio.push(entry);
+  }
+  await saveBilancio();
+  bilancioForm.classList.remove('open');
+  resetBilancioForm();
+  editingBilancioId = null;
+  renderAll();
+});
+
+document.getElementById('bilancio-body').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  const item = bilancio.find(b => b.id===id);
+  if(!item) return;
+  if(item.bloccato) return;
+  if(action==='delete-bilancio'){
+    confirmingBilancioDeleteId = id;
+    renderBilancio();
+  } else if(action==='confirm-delete-bilancio'){
+    confirmingBilancioDeleteId = null;
+    bilancio = bilancio.filter(b => b.id!==id);
+    await saveBilancio();
+    renderAll();
+  } else if(action==='cancel-delete-bilancio'){
+    confirmingBilancioDeleteId = null;
+    renderBilancio();
+  } else if(action==='edit-bilancio'){
+    editingBilancioId = id;
+    document.getElementById('bf-anno').value = item.anno;
+    document.getElementById('bf-conto').value = item.conto;
+    const haMensile = Array.isArray(item.entrateMensili) && item.entrateMensili.some(v => v !== null && v !== undefined);
+    document.getElementById('bf-usa-mensile').checked = haMensile;
+    document.getElementById('bf-mensile-wrap').style.display = haMensile ? 'block' : 'none';
+    for(let i=0;i<12;i++){
+      document.getElementById(`bf-mese-${i}-entrate`).value = (item.entrateMensili && item.entrateMensili[i] !== null && item.entrateMensili[i] !== undefined) ? item.entrateMensili[i] : '';
+      document.getElementById(`bf-mese-${i}-uscite`).value = (item.usciteMensili && item.usciteMensili[i] !== null && item.usciteMensili[i] !== undefined) ? item.usciteMensili[i] : '';
+    }
+    document.getElementById('bf-entrate').value = item.entrate;
+    document.getElementById('bf-uscite').value = item.uscite;
+    document.getElementById('bf-bloccato').checked = false;
+    confirmingLockBilancio = false;
+    document.getElementById('bf-save').textContent = 'Salva';
+    updateBilancioComputedFields();
+    bilancioForm.classList.add('open');
+    bilancioForm.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+});
+
+// Contratti a scadenza
+document.getElementById('contratti-filter-tipo').addEventListener('change', renderContratti);
+
+const contrattiForm = document.getElementById('contratti-form');
+function resetContrattiForm(){
+  document.getElementById('cf-tipo').value = '';
+  document.getElementById('cf-controparte').value = '';
+  document.getElementById('cf-riferimento').value = '';
+  document.getElementById('cf-data-inizio').value = '';
+  document.getElementById('cf-data-fine').value = '';
+  document.getElementById('cf-data-disdetta').value = '';
+  document.getElementById('cf-canone').value = '';
+  document.getElementById('cf-prezzo-unitario').value = '';
+  document.getElementById('cf-unita-misura').value = '';
+  document.getElementById('cf-note').value = '';
+}
+document.getElementById('toggle-contratti-form').addEventListener('click', () => {
+  editingContrattoId = null;
+  resetContrattiForm();
+  contrattiForm.classList.add('open');
+});
+document.getElementById('cf-cancel').addEventListener('click', () => contrattiForm.classList.remove('open'));
+
+document.getElementById('cf-save').addEventListener('click', async () => {
+  const tipo = document.getElementById('cf-tipo').value.trim();
+  const controparte = document.getElementById('cf-controparte').value.trim();
+  const dataInizio = document.getElementById('cf-data-inizio').value;
+  if(!tipo){ showFormError('Inserisci il tipo di contratto.'); return; }
+  if(!controparte){ showFormError('Inserisci il fornitore/controparte.'); return; }
+  if(!dataInizio){ showFormError('Inserisci la data di inizio.'); return; }
+  const entry = {
+    id: editingContrattoId || uid(),
+    tipo, controparte,
+    riferimento: document.getElementById('cf-riferimento').value.trim(),
+    dataInizio,
+    dataFine: document.getElementById('cf-data-fine').value || null,
+    dataDisdetta: document.getElementById('cf-data-disdetta').value || null,
+    canone: parseFloat(document.getElementById('cf-canone').value) || 0,
+    prezzoUnitario: parseFloat(document.getElementById('cf-prezzo-unitario').value) || 0,
+    unitaMisura: document.getElementById('cf-unita-misura').value,
+    note: document.getElementById('cf-note').value.trim()
+  };
+  if(editingContrattoId){
+    contratti = contratti.map(c => c.id===editingContrattoId ? entry : c);
+  } else {
+    contratti.push(entry);
+  }
+  await saveContratti();
+  contrattiForm.classList.remove('open');
+  resetContrattiForm();
+  editingContrattoId = null;
+  renderAll();
+});
+
+document.getElementById('contratti-body').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  const item = contratti.find(c => c.id===id);
+  if(!item) return;
+  if(action==='delete-contratto'){
+    confirmingContrattoDeleteId = id;
+    renderContratti();
+  } else if(action==='confirm-delete-contratto'){
+    confirmingContrattoDeleteId = null;
+    contratti = contratti.filter(c => c.id!==id);
+    await saveContratti();
+    renderAll();
+  } else if(action==='cancel-delete-contratto'){
+    confirmingContrattoDeleteId = null;
+    renderContratti();
+  } else if(action==='edit-contratto'){
+    editingContrattoId = id;
+    document.getElementById('cf-tipo').value = item.tipo;
+    document.getElementById('cf-controparte').value = item.controparte;
+    document.getElementById('cf-riferimento').value = item.riferimento || '';
+    document.getElementById('cf-data-inizio').value = item.dataInizio;
+    document.getElementById('cf-data-fine').value = item.dataFine || '';
+    document.getElementById('cf-data-disdetta').value = item.dataDisdetta || '';
+    document.getElementById('cf-canone').value = item.canone || '';
+    document.getElementById('cf-prezzo-unitario').value = item.prezzoUnitario || '';
+    document.getElementById('cf-unita-misura').value = item.unitaMisura || '';
+    document.getElementById('cf-note').value = item.note || '';
+    contrattiForm.classList.add('open');
+    contrattiForm.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+});
+
+// Autenticazione: mostra l'app solo dopo il login, carica i dati dell'utente
+function showAuthError(err){
+  const mapping = {
+    'auth/invalid-email': 'Indirizzo email non valido.',
+    'auth/user-not-found': 'Nessun account con questa email.',
+    'auth/wrong-password': 'Password errata.',
+    'auth/invalid-credential': 'Email o password non corrette.',
+    'auth/email-already-in-use': 'Esiste già un account con questa email.',
+    'auth/weak-password': 'La password deve avere almeno 6 caratteri.',
+    'auth/popup-closed-by-user': 'Accesso con Google annullato.',
+    'auth/missing-password': 'Inserisci la password.'
+  };
+  const el = document.getElementById('auth-error');
+  el.textContent = mapping[err.code] || 'Si è verificato un errore. Riprova.';
+  el.style.display = 'block';
+}
+document.getElementById('auth-login-btn').addEventListener('click', async () => {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  document.getElementById('auth-error').style.display = 'none';
+  try{ await signInWithEmailAndPassword(auth, email, password); }
+  catch(e){ showAuthError(e); }
+});
+document.getElementById('auth-register-btn').addEventListener('click', async () => {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  document.getElementById('auth-error').style.display = 'none';
+  try{ await createUserWithEmailAndPassword(auth, email, password); }
+  catch(e){ showAuthError(e); }
+});
+document.getElementById('auth-google-btn').addEventListener('click', async () => {
+  document.getElementById('auth-error').style.display = 'none';
+  try{ await signInWithPopup(auth, new GoogleAuthProvider()); }
+  catch(e){ showAuthError(e); }
+});
+document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, async (user) => {
+  if(user){
+    document.getElementById('auth-gate').style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
+    document.getElementById('logout-bar').style.display = 'flex';
+    document.getElementById('logout-email').textContent = user.email || '';
+    document.getElementById('auth-email').value = '';
+    document.getElementById('auth-password').value = '';
+    await loadData();
+    renderAll();
+  } else {
+    document.getElementById('auth-gate').style.display = 'flex';
+    document.getElementById('app-content').style.display = 'none';
+    document.getElementById('logout-bar').style.display = 'none';
+  }
+});
+</script>
+</div>
+</body>
+</html>
