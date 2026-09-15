@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Family Dashboard</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230176D3'/%3E%3Ccircle cx='8' cy='8' r='3' fill='white'/%3E%3Ccircle cx='17' cy='9' r='2.5' fill='white'/%3E%3Cpath d='M2 20c0-3.5 2.7-6 6-6s6 2.5 6 6' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round'/%3E%3Cpath d='M14 20c0-2.8 1.8-4.8 4-4.8s4 2 4 4.8' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#0176D3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Family Dashboard">
 <style>
   :root{
     --paper:#F3F3F6;
@@ -218,6 +224,7 @@
   #medical-form.open{display:block;}
   #bilancio-form.open{display:block;}
   #contratti-form.open{display:block;}
+  #documenti-form.open{display:block;}
   .form-section{margin-bottom:20px;}
   .form-section:last-of-type{margin-bottom:0;}
   .form-section-title{
@@ -395,6 +402,8 @@
     <button class="tab-btn active" data-tab="medical"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Spese mediche</button>
     <button class="tab-btn" data-tab="bilancio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><line x1="4" y1="20" x2="20" y2="20"/><line x1="7" y1="20" x2="7" y2="12"/><line x1="12" y1="20" x2="12" y2="6"/><line x1="17" y1="20" x2="17" y2="15"/></svg>Bilancio annuale</button>
     <button class="tab-btn" data-tab="contratti"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><path d="M6 2h9l5 5v15H6z"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>Contratti a scadenza</button>
+    <button class="tab-btn" data-tab="documenti"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="9" r="2.3"/><path d="M8 17c0-2.2 1.8-3.5 4-3.5s4 1.3 4 3.5"/></svg>Documenti personali</button>
+    <button class="tab-btn" data-tab="detrazioni"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><circle cx="12" cy="12" r="9"/><line x1="8" y1="16" x2="16" y2="8"/><circle cx="9" cy="9" r="0.6" fill="currentColor"/><circle cx="15" cy="15" r="0.6" fill="currentColor"/></svg>Detrazioni fiscali</button>
   </nav>
 
   <section class="panel" id="panel-recurring">
@@ -482,7 +491,7 @@
     <table>
       <thead>
         <tr>
-          <th data-sort-key="dataDocumento">Data <span class="sort-ind"></span></th><th data-sort-key="documento">Documento <span class="sort-ind"></span></th><th data-sort-key="richiedente">Richiedente <span class="sort-ind"></span></th><th data-sort-key="descrizione">Prestazione <span class="sort-ind"></span></th><th data-sort-key="modalita">Modalità <span class="sort-ind"></span></th><th data-sort-key="stato">Stato pratica <span class="sort-ind"></span></th><th data-sort-key="totale">Totale <span class="sort-ind"></span></th><th data-sort-key="fasiRichiesto">FASI richiesto <span class="sort-ind"></span></th><th data-sort-key="fasiPagato">FASI pagato <span class="sort-ind"></span></th><th data-sort-key="richiestoSecondo">2° liv. richiesto <span class="sort-ind"></span></th><th data-sort-key="assRimborsato">2° liv. pagato <span class="sort-ind"></span></th><th data-sort-key="residuo">Residuo <span class="sort-ind"></span></th><th data-sort-key="quotaMamma">Quota Pizzinat <span class="sort-ind"></span></th><th></th>
+          <th data-sort-key="dataDocumento">Data <span class="sort-ind"></span></th><th data-sort-key="tipoDocumento">Tipo documento <span class="sort-ind"></span></th><th data-sort-key="numeroDocumento">Numero documento <span class="sort-ind"></span></th><th data-sort-key="richiedente">Richiedente <span class="sort-ind"></span></th><th data-sort-key="descrizione">Prestazione <span class="sort-ind"></span></th><th data-sort-key="modalita">Modalità <span class="sort-ind"></span></th><th data-sort-key="stato">Stato pratica <span class="sort-ind"></span></th><th data-sort-key="totale">Totale <span class="sort-ind"></span></th><th data-sort-key="fasiRichiesto">FASI richiesto <span class="sort-ind"></span></th><th data-sort-key="fasiPagato">FASI pagato <span class="sort-ind"></span></th><th data-sort-key="richiestoSecondo">2° liv. richiesto <span class="sort-ind"></span></th><th data-sort-key="assRimborsato">2° liv. pagato <span class="sort-ind"></span></th><th data-sort-key="residuo">Residuo <span class="sort-ind"></span></th><th data-sort-key="quotaMamma">Quota Pizzinat <span class="sort-ind"></span></th><th></th>
         </tr>
       </thead>
       <tbody id="medical-body"></tbody>
@@ -859,6 +868,172 @@
       </div>
     </div>
   </section>
+
+  <section class="panel" id="panel-documenti">
+    <div class="filter-bar">
+      <label style="margin-right:8px;">Tipo</label>
+      <select id="documenti-filter-tipo">
+        <option value="">Tutti</option>
+      </select>
+      <label style="margin-left:18px;margin-right:8px;">Intestatario</label>
+      <select id="documenti-filter-intestatario">
+        <option value="">Tutti</option>
+      </select>
+    </div>
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th data-sort-key="tipo">Tipo <span class="sort-ind"></span></th>
+          <th data-sort-key="intestatario">Intestatario <span class="sort-ind"></span></th>
+          <th data-sort-key="enteRilascio">Ente rilascio <span class="sort-ind"></span></th>
+          <th data-sort-key="dataRilascio">Rilascio <span class="sort-ind"></span></th>
+          <th data-sort-key="dataScadenza">Scadenza <span class="sort-ind"></span></th>
+          <th data-sort-key="note">Note <span class="sort-ind"></span></th>
+          <th>Stato</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="documenti-body"></tbody>
+    </table>
+    </div>
+    <button class="add-toggle" id="toggle-documenti-form">+ Aggiungi documento</button>
+    <div class="entry-form" id="documenti-form">
+      <div class="form-section">
+        <div class="form-row form-row-3">
+          <div class="field">
+            <label>Tipo documento</label>
+            <input list="preset-tipo-documento" id="df-tipo" placeholder="es. Carta d'identità">
+            <datalist id="preset-tipo-documento">
+              <option value="Carta d'identità"><option value="Patente"><option value="Passaporto">
+              <option value="Tessera sanitaria"><option value="Codice fiscale"><option value="Altro">
+            </datalist>
+          </div>
+          <div class="field">
+            <label>Intestatario</label>
+            <input list="preset-intestatario-documento" id="df-intestatario" placeholder="es. Stefano">
+            <datalist id="preset-intestatario-documento">
+              <option value="Stefano"><option value="Ela"><option value="Sara">
+            </datalist>
+          </div>
+          <div class="field">
+            <label>Ente rilascio (facoltativo)</label>
+            <input id="df-ente" placeholder="es. Comune di Bologna">
+          </div>
+        </div>
+        <div class="form-row form-row-3">
+          <div class="field">
+            <label>Data rilascio</label>
+            <input type="date" id="df-data-rilascio">
+          </div>
+          <div class="field">
+            <label>Data scadenza</label>
+            <input type="date" id="df-data-scadenza">
+          </div>
+        </div>
+        <div class="form-row form-row-3">
+          <div class="field span3">
+            <label>Note</label>
+            <input id="df-note" placeholder="opzionale">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" id="df-cancel">Annulla</button>
+        <button type="button" class="btn" id="df-save">Salva</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-detrazioni">
+    <div class="filter-bar">
+      <label style="margin-right:8px;">Anno</label>
+      <select id="detrazioni-filter-anno">
+        <option value="">Tutti</option>
+      </select>
+      <label style="margin-left:18px;margin-right:8px;">Categoria</label>
+      <select id="detrazioni-filter-categoria">
+        <option value="">Tutte</option>
+      </select>
+    </div>
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th data-sort-key="categoria">Categoria <span class="sort-ind"></span></th>
+          <th data-sort-key="intestatario">Intestatario <span class="sort-ind"></span></th>
+          <th data-sort-key="data">Data <span class="sort-ind"></span></th>
+          <th data-sort-key="importo">Importo <span class="sort-ind"></span></th>
+          <th data-sort-key="note">Note <span class="sort-ind"></span></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="detrazioni-body"></tbody>
+    </table>
+    </div>
+    <button class="add-toggle" id="toggle-detrazioni-form">+ Aggiungi voce detraibile</button>
+    <div class="entry-form" id="detrazioni-form">
+      <div class="form-section">
+        <div class="form-row form-row-3">
+          <div class="field">
+            <label>Categoria</label>
+            <input list="preset-categoria-detrazione" id="ef-categoria" placeholder="es. Farmaci">
+            <datalist id="preset-categoria-detrazione">
+              <option value="Farmaci"><option value="Interessi mutuo"><option value="Spese scolastiche">
+              <option value="Attività sportive figli"><option value="Assicurazioni vita/infortuni"><option value="Ristrutturazioni edilizie">
+              <option value="Spese veterinarie"><option value="Spese funebri"><option value="Erogazioni liberali"><option value="Altro">
+            </datalist>
+          </div>
+          <div class="field">
+            <label>Intestatario</label>
+            <input list="preset-intestatario-detrazione" id="ef-intestatario" placeholder="es. Stefano">
+            <datalist id="preset-intestatario-detrazione">
+              <option value="Stefano"><option value="Ela"><option value="Sara">
+            </datalist>
+          </div>
+          <div class="field">
+            <label>Data</label>
+            <input type="date" id="ef-data">
+          </div>
+        </div>
+        <div class="form-row form-row-3">
+          <div class="field">
+            <label>Importo (€)</label>
+            <input type="number" step="0.01" id="ef-importo">
+          </div>
+          <div class="field span2">
+            <label>Note</label>
+            <input id="ef-note" placeholder="opzionale">
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn ghost" id="ef-cancel">Annulla</button>
+        <button type="button" class="btn" id="ef-save">Salva</button>
+      </div>
+    </div>
+
+    <div class="form-section" style="margin-top:24px;padding-top:20px;border-top:1px solid var(--line);">
+      <p class="form-section-title">🧾 Modulo per il commercialista</p>
+      <p style="font-size:13px;color:var(--ink-soft);margin:0 0 12px;">
+        Combina automaticamente le spese mediche non rimborsate con le voci detraibili aggiunte qui sopra, per l'anno scelto.
+      </p>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+        <label style="margin-right:4px;">Anno</label>
+        <select id="commercialista-anno" style="padding:6px 9px;">
+          <option value="">Tutti gli anni</option>
+        </select>
+        <button type="button" class="btn" id="commercialista-genera">Genera</button>
+      </div>
+      <textarea id="commercialista-text" readonly rows="10" style="width:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;padding:10px;border:1px solid var(--line);border-radius:4px;" placeholder="Clicca 'Genera' per creare il modulo."></textarea>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px;">
+        <button type="button" class="btn ghost" id="commercialista-copy">Copia testo</button>
+        <a id="commercialista-download" class="btn ghost" href="#" download="modulo-commercialista.csv" style="text-decoration:none;">Scarica CSV</a>
+      </div>
+      <p id="commercialista-feedback" style="margin:10px 0 0;font-size:13px;"></p>
+    </div>
+  </section>
 </div>
 
 <script type="module">
@@ -883,14 +1058,20 @@ const KEY_RECURRING = "recurring-payments";
 const KEY_MEDICAL = "medical-expenses";
 const KEY_BILANCIO = "annual-balance";
 const KEY_CONTRATTI = "expiring-contracts";
+const KEY_DOCUMENTI = "personal-documents";
+const KEY_DETRAZIONI = "tax-deductions";
 let recurring = [];
 let medical = [];
 let bilancio = [];
 let contratti = [];
+let documenti = [];
+let detrazioni = [];
 let editingRecurringId = null;
 let editingMedicalId = null;
 let editingBilancioId = null;
 let editingContrattoId = null;
+let editingDocumentoId = null;
+let editingDetrazioneId = null;
 
 // Salvataggio dati: ogni utente autenticato ha il proprio documento su
 // Firestore (users/{uid}), quindi i dati di persone diverse restano
@@ -949,6 +1130,10 @@ async function loadData(){
   catch(e){ bilancio = []; }
   try{ const r = await storageAdapter.get(KEY_CONTRATTI, false); contratti = r ? JSON.parse(r.value) : []; }
   catch(e){ contratti = []; }
+  try{ const r = await storageAdapter.get(KEY_DOCUMENTI, false); documenti = r ? JSON.parse(r.value) : []; }
+  catch(e){ documenti = []; }
+  try{ const r = await storageAdapter.get(KEY_DETRAZIONI, false); detrazioni = r ? JSON.parse(r.value) : []; }
+  catch(e){ detrazioni = []; }
 }
 async function saveRecurring(){
   try{ await storageAdapter.set(KEY_RECURRING, JSON.stringify(recurring), false); }
@@ -965,6 +1150,14 @@ async function saveBilancio(){
 async function saveContratti(){
   try{ await storageAdapter.set(KEY_CONTRATTI, JSON.stringify(contratti), false); }
   catch(e){ console.error('Errore salvataggio contratti', e); showSaveWarning('Il salvataggio non è riuscito. Riprova o ricarica la pagina.'); }
+}
+async function saveDocumenti(){
+  try{ await storageAdapter.set(KEY_DOCUMENTI, JSON.stringify(documenti), false); }
+  catch(e){ console.error('Errore salvataggio documenti', e); showSaveWarning('Il salvataggio non è riuscito. Riprova o ricarica la pagina.'); }
+}
+async function saveDetrazioni(){
+  try{ await storageAdapter.set(KEY_DETRAZIONI, JSON.stringify(detrazioni), false); }
+  catch(e){ console.error('Errore salvataggio detrazioni', e); showSaveWarning('Il salvataggio non è riuscito. Riprova o ricarica la pagina.'); }
 }
 
 function renderSummary(){
@@ -1074,6 +1267,42 @@ function renderSummary(){
         <span class="summary-label">Totale canoni mensili</span>
       </div>
     `;
+  } else if(activeTab === 'documenti'){
+    const scaduti = documenti.filter(d => d.dataScadenza && daysUntil(d.dataScadenza) < 0).length;
+    const inScadenza = documenti.filter(d => d.dataScadenza && daysUntil(d.dataScadenza) >= 0 && daysUntil(d.dataScadenza) <= 90).length;
+    el.innerHTML = `
+      <div class="summary-item">
+        <span class="summary-num">${documenti.length}</span>
+        <span class="summary-label">Documenti registrati</span>
+      </div>
+      <div class="summary-item ${scaduti ? 'warn' : ''}">
+        <span class="summary-num">${scaduti}</span>
+        <span class="summary-label">Documenti scaduti</span>
+      </div>
+      <div class="summary-item ${inScadenza ? 'pend' : ''}">
+        <span class="summary-num">${inScadenza}</span>
+        <span class="summary-label">In scadenza nei 90 giorni</span>
+      </div>
+    `;
+  } else if(activeTab === 'detrazioni'){
+    const anniPresenti = [...new Set(detrazioni.map(d => (d.data||'').slice(0,4)).filter(Boolean))].sort().reverse();
+    const annoRecente = anniPresenti[0];
+    const totaleAnno = detrazioni.filter(d => (d.data||'').slice(0,4)===annoRecente).reduce((s,d)=> s + (Number(d.importo)||0), 0);
+    const totaleStorico = detrazioni.reduce((s,d)=> s + (Number(d.importo)||0), 0);
+    el.innerHTML = `
+      <div class="summary-item">
+        <span class="summary-num">${detrazioni.length}</span>
+        <span class="summary-label">Voci detraibili registrate</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-num">${annoRecente ? euro(totaleAnno) : '—'}</span>
+        <span class="summary-label">Totale ${annoRecente || 'anno più recente'}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-num">${euro(totaleStorico)}</span>
+        <span class="summary-label">Totale voci manuali storico</span>
+      </div>
+    `;
   }
 }
 
@@ -1180,7 +1409,8 @@ function medicalSortValue(m, key){
   const quotaMamma = (eSara && praticaConclusa) ? residuo / 2 : 0;
   switch(key){
     case 'dataDocumento': return new Date(m.dataDocumento).getTime() || 0;
-    case 'documento': return `${m.tipoDocumento||''} ${m.numeroDocumento||''}`.toLowerCase();
+    case 'tipoDocumento': return (m.tipoDocumento||'').toLowerCase();
+    case 'numeroDocumento': return (m.numeroDocumento||'').toLowerCase();
     case 'richiedente': return (m.richiedente||'').toLowerCase();
     case 'descrizione': return (m.descrizione||'').toLowerCase();
     case 'modalita': return (m.modalita||'').toLowerCase();
@@ -1269,7 +1499,7 @@ function renderMedical(){
   const body = document.getElementById('medical-body');
   const filtered = getFilteredMedical();
   if(filtered.length===0){
-    body.innerHTML = `<tr><td colspan="14"><div class="empty-state">Nessuna spesa medica registrata.</div></td></tr>`;
+    body.innerHTML = `<tr><td colspan="15"><div class="empty-state">Nessuna spesa medica registrata.</div></td></tr>`;
     updateSortIndicators('#panel-medical', medicalSortKey, medicalSortDir);
     return;
   }
@@ -1285,7 +1515,8 @@ function renderMedical(){
     return `
     <tr data-id="${m.id}">
       <td>${fmtDate(m.dataDocumento)}</td>
-      <td class="doc-ref">${m.tipoDocumento} n. ${m.numeroDocumento}</td>
+      <td>${m.tipoDocumento}</td>
+      <td>${m.numeroDocumento}</td>
       <td>${m.richiedente}</td>
       <td>${m.descrizione}</td>
       <td><span class="modalita-badge">${m.modalita}</span></td>
@@ -1315,7 +1546,7 @@ function renderMedical(){
   }).join('');
   const subtotal = `
     <tr class="subtotal-row">
-      <td></td><td></td><td></td><td>Totale${filterName || filterStato || filterAnno ? ' — ' + [filterName, filterStato ? statoPraticaInfo(filterStato).label : '', filterAnno].filter(Boolean).join(', ') : ''}</td><td></td><td></td>
+      <td></td><td></td><td></td><td></td><td>Totale${filterName || filterStato || filterAnno ? ' — ' + [filterName, filterStato ? statoPraticaInfo(filterStato).label : '', filterAnno].filter(Boolean).join(', ') : ''}</td><td></td><td></td>
       <td class="amount">${euro(totTotale)}</td>
       <td class="amount">${euro(totFasiRichiesto)}</td>
       <td class="amount">${euro(totFasi)}</td>
@@ -1519,12 +1750,200 @@ function renderContratti(){
   updateSortIndicators('#panel-contratti', contrattiSortKey, contrattiSortDir);
 }
 
+let confirmingDocumentoDeleteId = null;
+let documentiSortKey = 'dataScadenza';
+let documentiSortDir = 'asc';
+
+function documentoStatoInfo(d){
+  if(!d.dataScadenza) return {label:'—', cls:'paid'};
+  const g = daysUntil(d.dataScadenza);
+  if(g < 0) return {label:'Scaduto', cls:'overdue'};
+  if(g <= 90) return {label:'In scadenza', cls:'soon'};
+  return {label:'Valido', cls:'paid'};
+}
+function documentiSortValue(d, key){
+  switch(key){
+    case 'tipo': return (d.tipo||'').toLowerCase();
+    case 'intestatario': return (d.intestatario||'').toLowerCase();
+    case 'enteRilascio': return (d.enteRilascio||'').toLowerCase();
+    case 'dataRilascio': return d.dataRilascio ? new Date(d.dataRilascio).getTime() : 0;
+    case 'dataScadenza': return d.dataScadenza ? new Date(d.dataScadenza).getTime() : Infinity;
+    case 'note': return (d.note||'').toLowerCase();
+    default: return 0;
+  }
+}
+function getFilteredDocumenti(){
+  const filterTipo = document.getElementById('documenti-filter-tipo').value;
+  const filterIntestatario = document.getElementById('documenti-filter-intestatario').value;
+  let filtered = filterTipo ? documenti.filter(d => d.tipo===filterTipo) : documenti;
+  if(filterIntestatario) filtered = filtered.filter(d => d.intestatario===filterIntestatario);
+  return filtered;
+}
+function refreshDocumentiFilterOptions(){
+  const selTipo = document.getElementById('documenti-filter-tipo');
+  const currentTipo = selTipo.value;
+  const tipi = [...new Set(documenti.map(d => d.tipo).filter(Boolean))].sort();
+  selTipo.innerHTML = `<option value="">Tutti</option>` + tipi.map(t => `<option value="${t}">${t}</option>`).join('');
+  if(tipi.includes(currentTipo)) selTipo.value = currentTipo;
+
+  const selInt = document.getElementById('documenti-filter-intestatario');
+  const currentInt = selInt.value;
+  const intestatari = [...new Set(documenti.map(d => d.intestatario).filter(Boolean))].sort();
+  selInt.innerHTML = `<option value="">Tutti</option>` + intestatari.map(i => `<option value="${i}">${i}</option>`).join('');
+  if(intestatari.includes(currentInt)) selInt.value = currentInt;
+}
+document.querySelectorAll('#panel-documenti thead th[data-sort-key]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sortKey;
+    if(documentiSortKey === key){ documentiSortDir = documentiSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { documentiSortKey = key; documentiSortDir = 'asc'; }
+    renderDocumenti();
+  });
+});
+
+function renderDocumenti(){
+  refreshDocumentiFilterOptions();
+  const body = document.getElementById('documenti-body');
+  const filtered = getFilteredDocumenti();
+  if(filtered.length===0){
+    body.innerHTML = `<tr><td colspan="8"><div class="empty-state">Nessun documento registrato.</div></td></tr>`;
+    updateSortIndicators('#panel-documenti', documentiSortKey, documentiSortDir);
+    return;
+  }
+  const sorted = applySort(filtered, documentiSortValue, documentiSortKey, documentiSortDir);
+  const rows = sorted.map(d => {
+    const stato = documentoStatoInfo(d);
+    const rowCls = stato.cls === 'overdue' ? 'row-overdue' : stato.cls === 'soon' ? 'row-soon' : 'row-ok';
+    return `
+    <tr class="${rowCls}" data-id="${d.id}">
+      <td>${d.tipo}</td>
+      <td>${d.intestatario}</td>
+      <td>${d.enteRilascio || '—'}</td>
+      <td>${d.dataRilascio ? fmtDate(d.dataRilascio) : '—'}</td>
+      <td>${d.dataScadenza ? fmtDate(d.dataScadenza) : '—'}</td>
+      <td>${d.note || '—'}</td>
+      <td><span class="badge ${stato.cls}">${stato.label}</span></td>
+      <td>
+        <div class="row-actions">
+          ${d.id === confirmingDocumentoDeleteId ? `
+            <span style="color:var(--stamp);font-size:13px;margin-right:4px;">Confermi?</span>
+            <button class="btn small" data-action="confirm-delete-documento" data-id="${d.id}">Sì, elimina</button>
+            <button class="btn small ghost" data-action="cancel-delete-documento" data-id="${d.id}">Annulla</button>
+          ` : `
+            <button class="btn small ghost" data-action="edit-documento" data-id="${d.id}">Modifica</button>
+            <button class="btn small ghost danger" data-action="delete-documento" data-id="${d.id}">Elimina</button>
+          `}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  body.innerHTML = rows;
+  updateSortIndicators('#panel-documenti', documentiSortKey, documentiSortDir);
+}
+
+let confirmingDetrazioneDeleteId = null;
+let detrazioniSortKey = 'data';
+let detrazioniSortDir = 'desc';
+
+function detrazioniSortValue(d, key){
+  switch(key){
+    case 'categoria': return (d.categoria||'').toLowerCase();
+    case 'intestatario': return (d.intestatario||'').toLowerCase();
+    case 'data': return d.data ? new Date(d.data).getTime() : 0;
+    case 'importo': return Number(d.importo) || 0;
+    case 'note': return (d.note||'').toLowerCase();
+    default: return 0;
+  }
+}
+function getFilteredDetrazioni(){
+  const filterAnno = document.getElementById('detrazioni-filter-anno').value;
+  const filterCategoria = document.getElementById('detrazioni-filter-categoria').value;
+  let filtered = filterAnno ? detrazioni.filter(d => (d.data||'').slice(0,4)===filterAnno) : detrazioni;
+  if(filterCategoria) filtered = filtered.filter(d => d.categoria===filterCategoria);
+  return filtered;
+}
+function refreshDetrazioniFilterOptions(){
+  const selAnno = document.getElementById('detrazioni-filter-anno');
+  const currentAnno = selAnno.value;
+  const anni = [...new Set(detrazioni.map(d => (d.data||'').slice(0,4)).filter(Boolean))].sort().reverse();
+  selAnno.innerHTML = `<option value="">Tutti</option>` + anni.map(a => `<option value="${a}">${a}</option>`).join('');
+  if(anni.includes(currentAnno)) selAnno.value = currentAnno;
+
+  const selCat = document.getElementById('detrazioni-filter-categoria');
+  const currentCat = selCat.value;
+  const categorie = [...new Set(detrazioni.map(d => d.categoria).filter(Boolean))].sort();
+  selCat.innerHTML = `<option value="">Tutte</option>` + categorie.map(c => `<option value="${c}">${c}</option>`).join('');
+  if(categorie.includes(currentCat)) selCat.value = currentCat;
+
+  // Popola anche il selettore anno del modulo commercialista, unendo gli anni di spese mediche e detrazioni
+  const selCommAnno = document.getElementById('commercialista-anno');
+  const currentCommAnno = selCommAnno.value;
+  const anniMedical = medical.map(m => (m.dataDocumento||'').slice(0,4)).filter(Boolean);
+  const anniTutti = [...new Set([...anni, ...anniMedical])].sort().reverse();
+  selCommAnno.innerHTML = `<option value="">Tutti gli anni</option>` + anniTutti.map(a => `<option value="${a}">${a}</option>`).join('');
+  if(anniTutti.includes(currentCommAnno)) selCommAnno.value = currentCommAnno;
+}
+document.querySelectorAll('#panel-detrazioni thead th[data-sort-key]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sortKey;
+    if(detrazioniSortKey === key){ detrazioniSortDir = detrazioniSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { detrazioniSortKey = key; detrazioniSortDir = 'asc'; }
+    renderDetrazioni();
+  });
+});
+
+function renderDetrazioni(){
+  refreshDetrazioniFilterOptions();
+  const body = document.getElementById('detrazioni-body');
+  const filtered = getFilteredDetrazioni();
+  if(filtered.length===0){
+    body.innerHTML = `<tr><td colspan="6"><div class="empty-state">Nessuna voce detraibile registrata.</div></td></tr>`;
+    updateSortIndicators('#panel-detrazioni', detrazioniSortKey, detrazioniSortDir);
+    return;
+  }
+  const sorted = applySort(filtered, detrazioniSortValue, detrazioniSortKey, detrazioniSortDir);
+  let totImporto = 0;
+  const rows = sorted.map(d => {
+    totImporto += Number(d.importo) || 0;
+    return `
+    <tr data-id="${d.id}">
+      <td>${d.categoria}</td>
+      <td>${d.intestatario}</td>
+      <td>${d.data ? fmtDate(d.data) : '—'}</td>
+      <td class="amount">${euro(d.importo)}</td>
+      <td>${d.note || '—'}</td>
+      <td>
+        <div class="row-actions">
+          ${d.id === confirmingDetrazioneDeleteId ? `
+            <span style="color:var(--stamp);font-size:13px;margin-right:4px;">Confermi?</span>
+            <button class="btn small" data-action="confirm-delete-detrazione" data-id="${d.id}">Sì, elimina</button>
+            <button class="btn small ghost" data-action="cancel-delete-detrazione" data-id="${d.id}">Annulla</button>
+          ` : `
+            <button class="btn small ghost" data-action="edit-detrazione" data-id="${d.id}">Modifica</button>
+            <button class="btn small ghost danger" data-action="delete-detrazione" data-id="${d.id}">Elimina</button>
+          `}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  const subtotal = `
+    <tr class="subtotal-row">
+      <td></td><td></td><td>Totale</td>
+      <td class="amount">${euro(totImporto)}</td>
+      <td></td><td></td>
+    </tr>`;
+  body.innerHTML = rows + subtotal;
+  updateSortIndicators('#panel-detrazioni', detrazioniSortKey, detrazioniSortDir);
+}
+
 function renderAll(){
   renderSummary();
   renderRecurring();
   renderMedical();
   renderBilancio();
   renderContratti();
+  renderDocumenti();
+  renderDetrazioni();
 }
 
 // Tabs
@@ -1751,6 +2170,86 @@ document.getElementById('mamma-email-copy').addEventListener('click', async () =
     ta.focus();
     ta.select();
     feedback.textContent = 'Copia automatica non disponibile: seleziona il testo qui sopra e copialo manualmente (Ctrl/Cmd+C).';
+  }
+});
+
+// Modulo per il commercialista: spese mediche non rimborsate + voci detraibili manuali, per anno
+function buildCommercialistaCSV(){
+  const anno = document.getElementById('commercialista-anno').value;
+
+  const speseMediche = medical
+    .filter(m => !anno || (m.dataDocumento||'').slice(0,4)===anno)
+    .map(m => {
+      const {totale, fasiPagato, assRimborsato} = medicalRowNumbers(m);
+      const coperto = fasiPagato + assRimborsato;
+      const nonRimborsato = Math.max(0, totale - coperto);
+      return {
+        data: m.dataDocumento,
+        categoria: 'Spese mediche',
+        intestatario: m.richiedente || '',
+        descrizione: m.descrizione || '',
+        importo: nonRimborsato
+      };
+    })
+    .filter(r => r.importo > 0.004);
+
+  const voci = detrazioni
+    .filter(d => !anno || (d.data||'').slice(0,4)===anno)
+    .map(d => ({
+      data: d.data,
+      categoria: d.categoria || 'Altro',
+      intestatario: d.intestatario || '',
+      descrizione: d.note || '',
+      importo: Number(d.importo) || 0
+    }));
+
+  const righe = [...speseMediche, ...voci].sort((a,b)=> new Date(a.data) - new Date(b.data));
+
+  const header = 'Data;Categoria;Intestatario;Descrizione;Importo detraibile';
+  const rows = righe.map(r => `${fmtDate(r.data)};${r.categoria.replace(/;/g,',')};${r.intestatario.replace(/;/g,',')};${r.descrizione.replace(/;/g,',')};${euro(r.importo)}`);
+
+  const perCategoria = {};
+  righe.forEach(r => { perCategoria[r.categoria] = (perCategoria[r.categoria]||0) + r.importo; });
+  const subtotaliRows = Object.keys(perCategoria).sort().map(cat => `;TOTALE ${cat};;;${euro(perCategoria[cat])}`);
+
+  const totaleComplessivo = righe.reduce((s,r)=> s + r.importo, 0);
+  const csv = [header, ...rows, '', ...subtotaliRows, `;TOTALE COMPLESSIVO;;;${euro(totaleComplessivo)}`].join('\n');
+  return {csv, count: righe.length, totale: totaleComplessivo};
+}
+
+document.getElementById('commercialista-genera').addEventListener('click', () => {
+  const {csv, count, totale} = buildCommercialistaCSV();
+  document.getElementById('commercialista-text').value = csv;
+  const feedback = document.getElementById('commercialista-feedback');
+  if(count === 0){
+    feedback.textContent = 'Nessuna voce detraibile trovata per il periodo selezionato.';
+    document.getElementById('commercialista-download').href = '#';
+    return;
+  }
+  try{
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    document.getElementById('commercialista-download').href = url;
+  }catch(e){
+    console.error('Impossibile creare il link di download', e);
+  }
+  feedback.textContent = `${count} voc${count===1?'e trovata':'i trovate'}, totale detraibile ${euro(totale)}.`;
+});
+
+document.getElementById('commercialista-copy').addEventListener('click', async () => {
+  const ta = document.getElementById('commercialista-text');
+  const feedback = document.getElementById('commercialista-feedback');
+  if(!ta.value){
+    feedback.textContent = 'Genera prima il modulo con il pulsante "Genera".';
+    return;
+  }
+  try{
+    await navigator.clipboard.writeText(ta.value);
+    feedback.textContent = 'Testo copiato negli appunti.';
+  }catch(e){
+    ta.focus();
+    ta.select();
+    feedback.textContent = 'Copia automatica non disponibile: il testo è selezionato, usa Ctrl/Cmd+C.';
   }
 });
 
@@ -2017,6 +2516,8 @@ const BIL_CSV_COLS = ['id','anno','conto','entrate','uscite',
 const BIL_MESI_ENTRATE_KEYS = BIL_CSV_COLS.slice(5,17);
 const BIL_MESI_USCITE_KEYS = BIL_CSV_COLS.slice(17,29);
 const CONTR_CSV_COLS = ['id','tipo','controparte','riferimento','dataInizio','dataFine','dataDisdetta','canone','prezzoUnitario','unitaMisura','note'];
+const DOC_CSV_COLS = ['id','tipo','intestatario','enteRilascio','dataRilascio','dataScadenza','note'];
+const DETR_CSV_COLS = ['id','categoria','intestatario','data','importo','note'];
 
 function currentBackupCSV(){
   const recRows = recurring.map(p => REC_CSV_COLS.map(c => csvEscape(p[c])).join(','));
@@ -2038,18 +2539,22 @@ function currentBackupCSV(){
     return csvEscape(b[c]);
   }).join(','));
   const contrRows = contratti.map(c => CONTR_CSV_COLS.map(col => csvEscape(c[col])).join(','));
-  return `### PAGAMENTI RICORRENTI\n${REC_CSV_COLS.join(',')}\n${recRows.join('\n')}\n\n### SPESE MEDICHE\n${MED_CSV_COLS.join(',')}\n${medRows.join('\n')}\n\n### BILANCIO ANNUALE\n${BIL_CSV_COLS.join(',')}\n${bilRows.join('\n')}\n\n### CONTRATTI A SCADENZA\n${CONTR_CSV_COLS.join(',')}\n${contrRows.join('\n')}\n`;
+  const docRows = documenti.map(d => DOC_CSV_COLS.map(col => csvEscape(d[col])).join(','));
+  const detrRows = detrazioni.map(d => DETR_CSV_COLS.map(col => csvEscape(d[col])).join(','));
+  return `### PAGAMENTI RICORRENTI\n${REC_CSV_COLS.join(',')}\n${recRows.join('\n')}\n\n### SPESE MEDICHE\n${MED_CSV_COLS.join(',')}\n${medRows.join('\n')}\n\n### BILANCIO ANNUALE\n${BIL_CSV_COLS.join(',')}\n${bilRows.join('\n')}\n\n### CONTRATTI A SCADENZA\n${CONTR_CSV_COLS.join(',')}\n${contrRows.join('\n')}\n\n### DOCUMENTI PERSONALI\n${DOC_CSV_COLS.join(',')}\n${docRows.join('\n')}\n\n### DETRAZIONI FISCALI\n${DETR_CSV_COLS.join(',')}\n${detrRows.join('\n')}\n`;
 }
 
 function parseBackupCSV(text){
   const markerMed = /###\s*SPESE MEDICHE/i;
   const markerBil = /###\s*BILANCIO ANNUALE/i;
   const markerContr = /###\s*CONTRATTI A SCADENZA/i;
+  const markerDoc = /###\s*DOCUMENTI PERSONALI/i;
+  const markerDetr = /###\s*DETRAZIONI FISCALI/i;
   if(!markerMed.test(text)){
     throw new Error('Formato non riconosciuto: manca la sezione "### SPESE MEDICHE".');
   }
   const [recPart, afterMed] = text.split(markerMed);
-  let medPart = afterMed, bilPart = '', contrPart = '';
+  let medPart = afterMed, bilPart = '', contrPart = '', docPart = '', detrPart = '';
   if(markerBil.test(afterMed)){
     const parts = afterMed.split(markerBil);
     medPart = parts[0];
@@ -2057,7 +2562,21 @@ function parseBackupCSV(text){
     if(markerContr.test(afterBil)){
       const parts2 = afterBil.split(markerContr);
       bilPart = parts2[0];
-      contrPart = parts2[1] || '';
+      let afterContr = parts2[1] || '';
+      if(markerDoc.test(afterContr)){
+        const parts3 = afterContr.split(markerDoc);
+        contrPart = parts3[0];
+        let afterDoc = parts3[1] || '';
+        if(markerDetr.test(afterDoc)){
+          const parts4 = afterDoc.split(markerDetr);
+          docPart = parts4[0];
+          detrPart = parts4[1] || '';
+        } else {
+          docPart = afterDoc;
+        }
+      } else {
+        contrPart = afterContr;
+      }
     } else {
       bilPart = afterBil;
     }
@@ -2140,7 +2659,38 @@ function parseBackupCSV(text){
     };
   }) : [];
 
-  return {recurring: recurringOut, medical: medicalOut, bilancio: bilancioOut, contratti: contrattiOut};
+  const docLines = docPart.trim().split('\n').map(l => l.trim()).filter(l => l.length);
+  const documentiOut = docLines.length > 1 ? docLines.slice(1).map(line => {
+    const vals = parseCSVLine(line);
+    const raw = {};
+    DOC_CSV_COLS.forEach((h,i) => raw[h] = vals[i] !== undefined ? vals[i] : '');
+    return {
+      id: raw.id,
+      tipo: raw.tipo,
+      intestatario: raw.intestatario,
+      enteRilascio: raw.enteRilascio,
+      dataRilascio: raw.dataRilascio || null,
+      dataScadenza: raw.dataScadenza || null,
+      note: raw.note
+    };
+  }) : [];
+
+  const detrLines = detrPart.trim().split('\n').map(l => l.trim()).filter(l => l.length);
+  const detrazioniOut = detrLines.length > 1 ? detrLines.slice(1).map(line => {
+    const vals = parseCSVLine(line);
+    const raw = {};
+    DETR_CSV_COLS.forEach((h,i) => raw[h] = vals[i] !== undefined ? vals[i] : '');
+    return {
+      id: raw.id,
+      categoria: raw.categoria,
+      intestatario: raw.intestatario,
+      data: raw.data || null,
+      importo: parseFloat(raw.importo) || 0,
+      note: raw.note
+    };
+  }) : [];
+
+  return {recurring: recurringOut, medical: medicalOut, bilancio: bilancioOut, contratti: contrattiOut, documenti: documentiOut, detrazioni: detrazioniOut};
 }
 
 document.getElementById('backup-export-btn').addEventListener('click', () => {
@@ -2153,7 +2703,7 @@ document.getElementById('backup-export-btn').addEventListener('click', () => {
   }catch(e){
     console.error('Impossibile creare il link di download', e);
   }
-  document.getElementById('backup-feedback').textContent = `Backup generato: ${recurring.length} pagamenti, ${medical.length} spese mediche, ${bilancio.length} bilanci, ${contratti.length} contratti. Copialo o scaricalo prima di pubblicare.`;
+  document.getElementById('backup-feedback').textContent = `Backup generato: ${recurring.length} pagamenti, ${medical.length} spese mediche, ${bilancio.length} bilanci, ${contratti.length} contratti, ${documenti.length} documenti, ${detrazioni.length} detrazioni. Copialo o scaricalo prima di pubblicare.`;
 });
 
 document.getElementById('backup-copy-btn').addEventListener('click', async () => {
@@ -2186,7 +2736,7 @@ document.getElementById('backup-import-btn').addEventListener('click', async () 
     feedback.textContent = 'Il testo incollato non è nel formato atteso: ' + e.message;
     return;
   }
-  const haCurrentData = recurring.length > 0 || medical.length > 0 || bilancio.length > 0 || contratti.length > 0;
+  const haCurrentData = recurring.length > 0 || medical.length > 0 || bilancio.length > 0 || contratti.length > 0 || documenti.length > 0 || detrazioni.length > 0;
   if(haCurrentData && !confirmingBackupImport){
     confirmingBackupImport = true;
     const btn = document.getElementById('backup-import-btn');
@@ -2206,12 +2756,16 @@ document.getElementById('backup-import-btn').addEventListener('click', async () 
   medical = parsed.medical;
   bilancio = parsed.bilancio || [];
   contratti = parsed.contratti || [];
+  documenti = parsed.documenti || [];
+  detrazioni = parsed.detrazioni || [];
   await saveRecurring();
   await saveMedical();
   await saveBilancio();
   await saveContratti();
+  await saveDocumenti();
+  await saveDetrazioni();
   renderAll();
-  showNotice(`Backup importato: ${recurring.length} pagamenti, ${medical.length} spese mediche, ${bilancio.length} bilanci, ${contratti.length} contratti.`, 'success');
+  showNotice(`Backup importato: ${recurring.length} pagamenti, ${medical.length} spese mediche, ${bilancio.length} bilanci, ${contratti.length} contratti, ${documenti.length} documenti, ${detrazioni.length} detrazioni.`, 'success');
   feedback.textContent = 'Importazione completata.';
 });
 
@@ -2459,6 +3013,156 @@ document.getElementById('contratti-body').addEventListener('click', async (e) =>
   }
 });
 
+// Documenti personali
+document.getElementById('documenti-filter-tipo').addEventListener('change', renderDocumenti);
+document.getElementById('documenti-filter-intestatario').addEventListener('change', renderDocumenti);
+
+const documentiForm = document.getElementById('documenti-form');
+function resetDocumentiForm(){
+  document.getElementById('df-tipo').value = '';
+  document.getElementById('df-intestatario').value = '';
+  document.getElementById('df-ente').value = '';
+  document.getElementById('df-data-rilascio').value = '';
+  document.getElementById('df-data-scadenza').value = '';
+  document.getElementById('df-note').value = '';
+}
+document.getElementById('toggle-documenti-form').addEventListener('click', () => {
+  editingDocumentoId = null;
+  resetDocumentiForm();
+  documentiForm.classList.add('open');
+});
+document.getElementById('df-cancel').addEventListener('click', () => documentiForm.classList.remove('open'));
+
+document.getElementById('df-save').addEventListener('click', async () => {
+  const tipo = document.getElementById('df-tipo').value.trim();
+  const intestatario = document.getElementById('df-intestatario').value.trim();
+  if(!tipo){ showFormError('Inserisci il tipo di documento.'); return; }
+  if(!intestatario){ showFormError('Inserisci l\'intestatario.'); return; }
+  const entry = {
+    id: editingDocumentoId || uid(),
+    tipo, intestatario,
+    enteRilascio: document.getElementById('df-ente').value.trim(),
+    dataRilascio: document.getElementById('df-data-rilascio').value || null,
+    dataScadenza: document.getElementById('df-data-scadenza').value || null,
+    note: document.getElementById('df-note').value.trim()
+  };
+  if(editingDocumentoId){
+    documenti = documenti.map(d => d.id===editingDocumentoId ? entry : d);
+  } else {
+    documenti.push(entry);
+  }
+  await saveDocumenti();
+  documentiForm.classList.remove('open');
+  resetDocumentiForm();
+  editingDocumentoId = null;
+  renderAll();
+});
+
+document.getElementById('documenti-body').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  const item = documenti.find(d => d.id===id);
+  if(!item) return;
+  if(action==='delete-documento'){
+    confirmingDocumentoDeleteId = id;
+    renderDocumenti();
+  } else if(action==='confirm-delete-documento'){
+    confirmingDocumentoDeleteId = null;
+    documenti = documenti.filter(d => d.id!==id);
+    await saveDocumenti();
+    renderAll();
+  } else if(action==='cancel-delete-documento'){
+    confirmingDocumentoDeleteId = null;
+    renderDocumenti();
+  } else if(action==='edit-documento'){
+    editingDocumentoId = id;
+    document.getElementById('df-tipo').value = item.tipo;
+    document.getElementById('df-intestatario').value = item.intestatario;
+    document.getElementById('df-ente').value = item.enteRilascio || '';
+    document.getElementById('df-data-rilascio').value = item.dataRilascio || '';
+    document.getElementById('df-data-scadenza').value = item.dataScadenza || '';
+    document.getElementById('df-note').value = item.note || '';
+    documentiForm.classList.add('open');
+    documentiForm.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+});
+
+// Detrazioni fiscali
+document.getElementById('detrazioni-filter-anno').addEventListener('change', renderDetrazioni);
+document.getElementById('detrazioni-filter-categoria').addEventListener('change', renderDetrazioni);
+
+const detrazioniForm = document.getElementById('detrazioni-form');
+function resetDetrazioniForm(){
+  document.getElementById('ef-categoria').value = '';
+  document.getElementById('ef-intestatario').value = '';
+  document.getElementById('ef-data').value = '';
+  document.getElementById('ef-importo').value = '';
+  document.getElementById('ef-note').value = '';
+}
+document.getElementById('toggle-detrazioni-form').addEventListener('click', () => {
+  editingDetrazioneId = null;
+  resetDetrazioniForm();
+  detrazioniForm.classList.add('open');
+});
+document.getElementById('ef-cancel').addEventListener('click', () => detrazioniForm.classList.remove('open'));
+
+document.getElementById('ef-save').addEventListener('click', async () => {
+  const categoria = document.getElementById('ef-categoria').value.trim();
+  const intestatario = document.getElementById('ef-intestatario').value.trim();
+  const importo = parseFloat(document.getElementById('ef-importo').value);
+  if(!categoria){ showFormError('Inserisci la categoria.'); return; }
+  if(!intestatario){ showFormError('Inserisci l\'intestatario.'); return; }
+  if(isNaN(importo)){ showFormError('Inserisci un importo valido.'); return; }
+  const entry = {
+    id: editingDetrazioneId || uid(),
+    categoria, intestatario, importo,
+    data: document.getElementById('ef-data').value || null,
+    note: document.getElementById('ef-note').value.trim()
+  };
+  if(editingDetrazioneId){
+    detrazioni = detrazioni.map(d => d.id===editingDetrazioneId ? entry : d);
+  } else {
+    detrazioni.push(entry);
+  }
+  await saveDetrazioni();
+  detrazioniForm.classList.remove('open');
+  resetDetrazioniForm();
+  editingDetrazioneId = null;
+  renderAll();
+});
+
+document.getElementById('detrazioni-body').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  const item = detrazioni.find(d => d.id===id);
+  if(!item) return;
+  if(action==='delete-detrazione'){
+    confirmingDetrazioneDeleteId = id;
+    renderDetrazioni();
+  } else if(action==='confirm-delete-detrazione'){
+    confirmingDetrazioneDeleteId = null;
+    detrazioni = detrazioni.filter(d => d.id!==id);
+    await saveDetrazioni();
+    renderAll();
+  } else if(action==='cancel-delete-detrazione'){
+    confirmingDetrazioneDeleteId = null;
+    renderDetrazioni();
+  } else if(action==='edit-detrazione'){
+    editingDetrazioneId = id;
+    document.getElementById('ef-categoria').value = item.categoria;
+    document.getElementById('ef-intestatario').value = item.intestatario;
+    document.getElementById('ef-data').value = item.data || '';
+    document.getElementById('ef-importo').value = item.importo;
+    document.getElementById('ef-note').value = item.note || '';
+    detrazioniForm.classList.add('open');
+    detrazioniForm.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+});
+
 // Autenticazione: mostra l'app solo dopo il login, carica i dati dell'utente
 function showAuthError(err){
   const mapping = {
@@ -2512,6 +3216,13 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('logout-bar').style.display = 'none';
   }
 });
+
+// Registrazione service worker per l'installazione come app (PWA)
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch((e) => console.error('Registrazione service worker non riuscita', e));
+  });
+}
 </script>
 </div>
 </body>
