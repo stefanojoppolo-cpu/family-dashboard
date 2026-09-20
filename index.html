@@ -1793,6 +1793,7 @@ function renderContratti(){
 }
 
 let confirmingDocumentoDeleteId = null;
+let renewingDocumentoId = null;
 let documentiSortKey = 'dataScadenza';
 let documentiSortDir = 'asc';
 
@@ -1872,12 +1873,26 @@ function renderDocumenti(){
             <button class="btn small" data-action="confirm-delete-documento" data-id="${d.id}">Sì, elimina</button>
             <button class="btn small ghost" data-action="cancel-delete-documento" data-id="${d.id}">Annulla</button>
           ` : `
+            <button class="btn small" data-action="toggle-renew-documento" data-id="${d.id}">Rinnova</button>
             <button class="btn small ghost" data-action="edit-documento" data-id="${d.id}">Modifica</button>
             <button class="btn small ghost danger" data-action="delete-documento" data-id="${d.id}">Elimina</button>
           `}
         </div>
       </td>
-    </tr>`;
+    </tr>${d.id === renewingDocumentoId ? `
+    <tr class="doc-row" data-parent-id="${d.id}">
+      <td colspan="8" style="background:var(--paper);padding:14px 14px 14px 20px;">
+        <p style="margin:0 0 10px;font-size:13px;color:var(--ink-soft);">Rinnovo — inserisci la nuova data di rilascio e la nuova scadenza; il resto (tipo, intestatario, ente, note) resta invariato.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <label style="font-size:13px;">Nuova data rilascio</label>
+          <input type="date" id="renew-rilascio-${d.id}" value="${new Date().toISOString().slice(0,10)}">
+          <label style="font-size:13px;margin-left:8px;">Nuova scadenza</label>
+          <input type="date" id="renew-scadenza-${d.id}">
+          <button type="button" class="btn small" data-action="save-renew-documento" data-id="${d.id}">Salva rinnovo</button>
+          <button type="button" class="btn small ghost" data-action="cancel-renew-documento" data-id="${d.id}">Annulla</button>
+        </div>
+      </td>
+    </tr>` : ''}`;
   }).join('');
   body.innerHTML = rows;
   updateSortIndicators('#panel-documenti', documentiSortKey, documentiSortDir);
@@ -3173,6 +3188,22 @@ document.getElementById('documenti-body').addEventListener('click', async (e) =>
     document.getElementById('df-note').value = item.note || '';
     documentiForm.classList.add('open');
     documentiForm.scrollIntoView({behavior:'smooth', block:'center'});
+  } else if(action==='toggle-renew-documento'){
+    renewingDocumentoId = renewingDocumentoId === id ? null : id;
+    renderDocumenti();
+  } else if(action==='cancel-renew-documento'){
+    renewingDocumentoId = null;
+    renderDocumenti();
+  } else if(action==='save-renew-documento'){
+    const nuovaRilascio = document.getElementById(`renew-rilascio-${id}`).value;
+    const nuovaScadenza = document.getElementById(`renew-scadenza-${id}`).value;
+    if(!nuovaScadenza){ showFormError('Inserisci la nuova data di scadenza.'); return; }
+    item.dataRilascio = nuovaRilascio || null;
+    item.dataScadenza = nuovaScadenza;
+    await saveDocumenti();
+    renewingDocumentoId = null;
+    renderAll();
+    showNotice('Documento rinnovato.', 'success');
   }
 });
 
