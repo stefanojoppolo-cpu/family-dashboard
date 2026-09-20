@@ -1548,7 +1548,7 @@ function renderMedical(){
       <td data-label="Richiedente">${m.richiedente}</td>
       <td data-label="Prestazione">${m.descrizione}</td>
       <td data-label="Modalità"><span class="modalita-badge">${m.modalita}</span></td>
-      <td data-label="Stato pratica">${(() => { const s = statoPraticaInfo(m.stato); return `<span class="badge ${s.cls}">${s.label}</span>`; })()}</td>
+      <td data-label="Stato pratica">${(() => { const s = statoPraticaInfo(m.stato); const tuttoRifiutato = m.stato === 'chiusa_completa' && m.fasiRifiutato && m.secondoRifiutato; return `<span class="badge ${tuttoRifiutato ? 'refused' : s.cls}">${s.label}</span>`; })()}</td>
       <td class="amount" data-label="Totale">${euro(totale)}</td>
       <td class="amount" data-label="FASI richiesto">${euro(fasiRichiesto)}</td>
       <td class="amount" data-label="FASI pagato">${m.fasiRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(fasiPagato)}</td>
