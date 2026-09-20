@@ -661,6 +661,17 @@
       </div>
 
       <div class="form-section">
+        <p class="form-section-title">Documenti collegati</p>
+        <p class="form-section-hint">Link a fattura, richiesta del medico e altri documenti utili per il rimborso (es. su Google Drive).</p>
+        <div id="mf-documenti-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <input type="text" id="mf-doc-nome" placeholder="Nome (es. Fattura)" style="width:170px;">
+          <input type="url" id="mf-doc-url" placeholder="Link Google Drive" style="flex:1;min-width:220px;">
+          <button type="button" class="btn small ghost" id="mf-doc-add">+ Aggiungi</button>
+        </div>
+      </div>
+
+      <div class="form-section">
         <p class="form-section-title">Blocco pratica</p>
         <p class="form-section-hint">Una volta bloccata, questa riga non potrà più essere modificata né eliminata. Usalo solo quando la pratica è davvero definitiva.</p>
         <div class="form-row-mamma" style="background:var(--stamp-soft);">
@@ -1398,6 +1409,7 @@ let confirmingRecurringDeleteId = null;
 let confirmingMedicalDeleteId = null;
 let expandedMedicalIds = new Set();
 let confirmingLockMedical = false;
+let formDocumenti = [];
 let confirmingLockRecurring = false;
 let confirmingLockBilancio = false;
 let recurringSortKey = 'scadenza';
@@ -1561,19 +1573,16 @@ function renderMedical(){
     </tr>${isExpanded ? `
     <tr class="doc-row" data-parent-id="${m.id}">
       <td colspan="16" style="background:var(--paper);padding:14px 14px 14px 40px;">
-        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:${docs.length ? '10px' : '0'};">
+        ${docs.length ? `
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
           ${docs.map(doc => `
             <span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;background:var(--paper-raised);border:1px solid var(--line);border-radius:4px;padding:5px 8px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--ink-soft);flex-shrink:0;"><path d="M6 2h9l5 5v15H6z"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
               <a href="${doc.url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">${doc.nome}</a>
-              <button type="button" data-action="remove-doc" data-id="${m.id}" data-doc-id="${doc.id}" style="background:none;border:none;color:var(--stamp);cursor:pointer;padding:0;font-size:13px;line-height:1;" aria-label="Rimuovi documento">✕</button>
             </span>
           `).join('')}
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-          <input type="text" placeholder="Nome (es. Fattura)" id="doc-nome-${m.id}" style="width:170px;">
-          <input type="url" placeholder="Link Google Drive" id="doc-url-${m.id}" style="flex:1;min-width:220px;">
-          <button type="button" class="btn small ghost" data-action="add-doc" data-id="${m.id}">+ Aggiungi documento</button>
-        </div>
+        ` : `<span class="doc-ref">Nessun documento collegato — aggiungili dal form "Modifica".</span>`}
       </td>
     </tr>` : ''}`;
   }).join('');
@@ -2071,8 +2080,42 @@ function resetMedicalForm(){
   document.getElementById('mf-bloccata').checked = false;
   confirmingLockMedical = false;
   document.getElementById('mf-save').textContent = 'Salva';
+  formDocumenti = [];
+  renderFormDocumentiList();
   updateMedicalComputedFields();
 }
+
+function renderFormDocumentiList(){
+  const container = document.getElementById('mf-documenti-list');
+  if(formDocumenti.length === 0){
+    container.innerHTML = `<span class="doc-ref">Nessun documento aggiunto.</span>`;
+    return;
+  }
+  container.innerHTML = formDocumenti.map(doc => `
+    <span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:5px 8px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--ink-soft);flex-shrink:0;"><path d="M6 2h9l5 5v15H6z"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+      <a href="${doc.url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">${doc.nome}</a>
+      <button type="button" data-form-doc-id="${doc.id}" style="background:none;border:none;color:var(--stamp);cursor:pointer;padding:0;font-size:13px;line-height:1;" aria-label="Rimuovi documento">✕</button>
+    </span>
+  `).join('');
+}
+document.getElementById('mf-documenti-list').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-form-doc-id]');
+  if(!btn) return;
+  formDocumenti = formDocumenti.filter(d => d.id !== btn.dataset.formDocId);
+  renderFormDocumentiList();
+});
+document.getElementById('mf-doc-add').addEventListener('click', () => {
+  const nomeInput = document.getElementById('mf-doc-nome');
+  const urlInput = document.getElementById('mf-doc-url');
+  const nome = nomeInput.value.trim();
+  const url = urlInput.value.trim();
+  if(!nome || !url){ showFormError('Inserisci sia il nome che il link del documento.'); return; }
+  formDocumenti.push({id: uid(), nome, url});
+  nomeInput.value = '';
+  urlInput.value = '';
+  renderFormDocumentiList();
+});
 
 function updateMedicalComputedFields(){
   const totale = parseFloat(document.getElementById('mf-totale').value) || 0;
@@ -2380,7 +2423,7 @@ document.getElementById('mf-save').addEventListener('click', async (e) => {
     mammaInviata: document.getElementById('mf-mamma-inviata').checked,
     mammaInviataData: document.getElementById('mf-mamma-data').value || undefined,
     bloccata: vuoleBloccare,
-    documenti: (editingMedicalId ? (medical.find(m => m.id===editingMedicalId) || {}).documenti : []) || []
+    documenti: formDocumenti
   };
   if(editingMedicalId){
     medical = medical.map(m => m.id===editingMedicalId ? entry : m);
@@ -2473,25 +2516,6 @@ document.getElementById('medical-body').addEventListener('click', async (e) => {
     return;
   }
   if(item.bloccata) return;
-  if(action==='add-doc'){
-    const nomeInput = document.getElementById(`doc-nome-${id}`);
-    const urlInput = document.getElementById(`doc-url-${id}`);
-    const nome = nomeInput.value.trim();
-    const url = urlInput.value.trim();
-    if(!nome || !url){ showFormError('Inserisci sia il nome che il link del documento.'); return; }
-    item.documenti = item.documenti || [];
-    item.documenti.push({id: uid(), nome, url});
-    await saveMedical();
-    renderMedical();
-    return;
-  }
-  if(action==='remove-doc'){
-    const docId = btn.dataset.docId;
-    item.documenti = (item.documenti || []).filter(d => d.id !== docId);
-    await saveMedical();
-    renderMedical();
-    return;
-  }
   if(action==='delete-medical'){
     confirmingMedicalDeleteId = id;
     renderMedical();
@@ -2523,6 +2547,8 @@ document.getElementById('medical-body').addEventListener('click', async (e) => {
     document.getElementById('mf-bloccata').checked = false;
     confirmingLockMedical = false;
     document.getElementById('mf-save').textContent = 'Salva';
+    formDocumenti = JSON.parse(JSON.stringify(item.documenti || []));
+    renderFormDocumentiList();
     updateMedicalComputedFields();
     medicalForm.classList.add('open');
     medicalForm.scrollIntoView({behavior:'smooth', block:'center'});
