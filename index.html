@@ -909,10 +909,12 @@
         <tr>
           <th data-sort-key="tipo">Tipo <span class="sort-ind"></span></th>
           <th data-sort-key="intestatario">Intestatario <span class="sort-ind"></span></th>
+          <th data-sort-key="numero">Numero <span class="sort-ind"></span></th>
           <th data-sort-key="enteRilascio">Ente rilascio <span class="sort-ind"></span></th>
           <th data-sort-key="dataRilascio">Rilascio <span class="sort-ind"></span></th>
           <th data-sort-key="dataScadenza">Scadenza <span class="sort-ind"></span></th>
           <th data-sort-key="note">Note <span class="sort-ind"></span></th>
+          <th>Documento</th>
           <th>Stato</th>
           <th></th>
         </tr>
@@ -942,6 +944,16 @@
           <div class="field">
             <label>Ente rilascio (facoltativo)</label>
             <input id="df-ente" placeholder="es. Comune di Bologna">
+          </div>
+        </div>
+        <div class="form-row form-row-3">
+          <div class="field">
+            <label>Numero documento (facoltativo)</label>
+            <input id="df-numero" placeholder="es. AB1234567">
+          </div>
+          <div class="field span2">
+            <label>Link al documento (facoltativo)</label>
+            <input type="url" id="df-link" placeholder="Link Google Drive">
           </div>
         </div>
         <div class="form-row form-row-3">
@@ -1808,6 +1820,7 @@ function documentiSortValue(d, key){
   switch(key){
     case 'tipo': return (d.tipo||'').toLowerCase();
     case 'intestatario': return (d.intestatario||'').toLowerCase();
+    case 'numero': return (d.numero||'').toLowerCase();
     case 'enteRilascio': return (d.enteRilascio||'').toLowerCase();
     case 'dataRilascio': return d.dataRilascio ? new Date(d.dataRilascio).getTime() : 0;
     case 'dataScadenza': return d.dataScadenza ? new Date(d.dataScadenza).getTime() : Infinity;
@@ -1849,7 +1862,7 @@ function renderDocumenti(){
   const body = document.getElementById('documenti-body');
   const filtered = getFilteredDocumenti();
   if(filtered.length===0){
-    body.innerHTML = `<tr><td colspan="8"><div class="empty-state">Nessun documento registrato.</div></td></tr>`;
+    body.innerHTML = `<tr><td colspan="10"><div class="empty-state">Nessun documento registrato.</div></td></tr>`;
     updateSortIndicators('#panel-documenti', documentiSortKey, documentiSortDir);
     return;
   }
@@ -1861,10 +1874,12 @@ function renderDocumenti(){
     <tr class="${rowCls}" data-id="${d.id}">
       <td data-label="Tipo">${d.tipo}</td>
       <td data-label="Intestatario">${d.intestatario}</td>
+      <td data-label="Numero">${d.numero || '—'}</td>
       <td data-label="Ente rilascio">${d.enteRilascio || '—'}</td>
       <td data-label="Rilascio">${d.dataRilascio ? fmtDate(d.dataRilascio) : '—'}</td>
       <td data-label="Scadenza">${d.dataScadenza ? fmtDate(d.dataScadenza) : '—'}</td>
       <td data-label="Note">${d.note || '—'}</td>
+      <td data-label="Documento">${d.link ? `<a href="${d.link}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">Apri ↗</a>` : '—'}</td>
       <td data-label="Stato"><span class="badge ${stato.cls}">${stato.label}</span></td>
       <td>
         <div class="row-actions">
@@ -1881,7 +1896,7 @@ function renderDocumenti(){
       </td>
     </tr>${d.id === renewingDocumentoId ? `
     <tr class="doc-row" data-parent-id="${d.id}">
-      <td colspan="8" style="background:var(--paper);padding:14px 14px 14px 20px;">
+      <td colspan="10" style="background:var(--paper);padding:14px 14px 14px 20px;">
         <p style="margin:0 0 10px;font-size:13px;color:var(--ink-soft);">Rinnovo — inserisci la nuova data di rilascio e la nuova scadenza; il resto (tipo, intestatario, ente, note) resta invariato.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
           <label style="font-size:13px;">Nuova data rilascio</label>
@@ -2616,7 +2631,7 @@ const BIL_CSV_COLS = ['id','anno','conto','entrate','uscite',
 const BIL_MESI_ENTRATE_KEYS = BIL_CSV_COLS.slice(5,17);
 const BIL_MESI_USCITE_KEYS = BIL_CSV_COLS.slice(17,29);
 const CONTR_CSV_COLS = ['id','tipo','controparte','riferimento','dataInizio','dataFine','dataDisdetta','canone','prezzoUnitario','unitaMisura','note'];
-const DOC_CSV_COLS = ['id','tipo','intestatario','enteRilascio','dataRilascio','dataScadenza','note'];
+const DOC_CSV_COLS = ['id','tipo','intestatario','numero','link','enteRilascio','dataRilascio','dataScadenza','note'];
 const DETR_CSV_COLS = ['id','categoria','intestatario','data','importo','note'];
 
 function currentBackupCSV(){
@@ -2770,6 +2785,8 @@ function parseBackupCSV(text){
       id: raw.id,
       tipo: raw.tipo,
       intestatario: raw.intestatario,
+      numero: raw.numero,
+      link: raw.link,
       enteRilascio: raw.enteRilascio,
       dataRilascio: raw.dataRilascio || null,
       dataScadenza: raw.dataScadenza || null,
@@ -3123,6 +3140,8 @@ const documentiForm = document.getElementById('documenti-form');
 function resetDocumentiForm(){
   document.getElementById('df-tipo').value = '';
   document.getElementById('df-intestatario').value = '';
+  document.getElementById('df-numero').value = '';
+  document.getElementById('df-link').value = '';
   document.getElementById('df-ente').value = '';
   document.getElementById('df-data-rilascio').value = '';
   document.getElementById('df-data-scadenza').value = '';
@@ -3143,6 +3162,8 @@ document.getElementById('df-save').addEventListener('click', async () => {
   const entry = {
     id: editingDocumentoId || uid(),
     tipo, intestatario,
+    numero: document.getElementById('df-numero').value.trim(),
+    link: document.getElementById('df-link').value.trim(),
     enteRilascio: document.getElementById('df-ente').value.trim(),
     dataRilascio: document.getElementById('df-data-rilascio').value || null,
     dataScadenza: document.getElementById('df-data-scadenza').value || null,
@@ -3182,6 +3203,8 @@ document.getElementById('documenti-body').addEventListener('click', async (e) =>
     editingDocumentoId = id;
     document.getElementById('df-tipo').value = item.tipo;
     document.getElementById('df-intestatario').value = item.intestatario;
+    document.getElementById('df-numero').value = item.numero || '';
+    document.getElementById('df-link').value = item.link || '';
     document.getElementById('df-ente').value = item.enteRilascio || '';
     document.getElementById('df-data-rilascio').value = item.dataRilascio || '';
     document.getElementById('df-data-scadenza').value = item.dataScadenza || '';
