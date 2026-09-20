@@ -503,7 +503,7 @@
     <table>
       <thead>
         <tr>
-          <th data-sort-key="dataDocumento">Data <span class="sort-ind"></span></th><th data-sort-key="tipoDocumento">Tipo documento <span class="sort-ind"></span></th><th data-sort-key="numeroDocumento">Numero documento <span class="sort-ind"></span></th><th data-sort-key="richiedente">Richiedente <span class="sort-ind"></span></th><th data-sort-key="descrizione">Prestazione <span class="sort-ind"></span></th><th data-sort-key="modalita">Modalità <span class="sort-ind"></span></th><th data-sort-key="stato">Stato pratica <span class="sort-ind"></span></th><th data-sort-key="totale">Totale <span class="sort-ind"></span></th><th data-sort-key="fasiRichiesto">FASI richiesto <span class="sort-ind"></span></th><th data-sort-key="fasiPagato">FASI pagato <span class="sort-ind"></span></th><th data-sort-key="richiestoSecondo">2° liv. richiesto <span class="sort-ind"></span></th><th data-sort-key="assRimborsato">2° liv. pagato <span class="sort-ind"></span></th><th data-sort-key="residuo">Residuo <span class="sort-ind"></span></th><th data-sort-key="quotaMamma">Quota Pizzinat <span class="sort-ind"></span></th><th></th>
+          <th></th><th data-sort-key="dataDocumento">Data <span class="sort-ind"></span></th><th data-sort-key="tipoDocumento">Tipo documento <span class="sort-ind"></span></th><th data-sort-key="numeroDocumento">Numero documento <span class="sort-ind"></span></th><th data-sort-key="richiedente">Richiedente <span class="sort-ind"></span></th><th data-sort-key="descrizione">Prestazione <span class="sort-ind"></span></th><th data-sort-key="modalita">Modalità <span class="sort-ind"></span></th><th data-sort-key="stato">Stato pratica <span class="sort-ind"></span></th><th data-sort-key="totale">Totale <span class="sort-ind"></span></th><th data-sort-key="fasiRichiesto">FASI richiesto <span class="sort-ind"></span></th><th data-sort-key="fasiPagato">FASI pagato <span class="sort-ind"></span></th><th data-sort-key="richiestoSecondo">2° liv. richiesto <span class="sort-ind"></span></th><th data-sort-key="assRimborsato">2° liv. pagato <span class="sort-ind"></span></th><th data-sort-key="residuo">Residuo <span class="sort-ind"></span></th><th data-sort-key="quotaMamma">Quota Pizzinat <span class="sort-ind"></span></th><th></th>
         </tr>
       </thead>
       <tbody id="medical-body"></tbody>
@@ -1396,6 +1396,7 @@ function medicalRowNumbers(m){
 
 let confirmingRecurringDeleteId = null;
 let confirmingMedicalDeleteId = null;
+let expandedMedicalIds = new Set();
 let confirmingLockMedical = false;
 let confirmingLockRecurring = false;
 let confirmingLockBilancio = false;
@@ -1511,7 +1512,7 @@ function renderMedical(){
   const body = document.getElementById('medical-body');
   const filtered = getFilteredMedical();
   if(filtered.length===0){
-    body.innerHTML = `<tr><td colspan="15"><div class="empty-state">Nessuna spesa medica registrata.</div></td></tr>`;
+    body.innerHTML = `<tr><td colspan="16"><div class="empty-state">Nessuna spesa medica registrata.</div></td></tr>`;
     updateSortIndicators('#panel-medical', medicalSortKey, medicalSortDir);
     return;
   }
@@ -1524,8 +1525,11 @@ function renderMedical(){
     const quotaMamma = (eSara && praticaConclusa) ? residuo / 2 : 0;
     totTotale += totale; totFasiRichiesto += fasiRichiesto; totFasi += fasiPagato; totRichiestoSecondo += richiestoSecondo; totAss += assRimborsato; totResiduo += residuo;
     if(eSara && praticaConclusa) totQuotaMamma += quotaMamma;
+    const docs = m.documenti || [];
+    const isExpanded = expandedMedicalIds.has(m.id);
     return `
     <tr data-id="${m.id}">
+      <td><button type="button" class="btn small ghost" data-action="toggle-doc-row" data-id="${m.id}" style="padding:4px 8px;" aria-label="Mostra documenti collegati">${isExpanded ? '▾' : '▸'}</button></td>
       <td data-label="Data">${fmtDate(m.dataDocumento)}</td>
       <td data-label="Tipo documento">${m.tipoDocumento}</td>
       <td data-label="Numero documento">${m.numeroDocumento}</td>
@@ -1554,11 +1558,28 @@ function renderMedical(){
           `}
         </div>
       </td>
-    </tr>`;
+    </tr>${isExpanded ? `
+    <tr class="doc-row" data-parent-id="${m.id}">
+      <td colspan="16" style="background:var(--paper);padding:14px 14px 14px 40px;">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:${docs.length ? '10px' : '0'};">
+          ${docs.map(doc => `
+            <span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;background:var(--paper-raised);border:1px solid var(--line);border-radius:4px;padding:5px 8px;">
+              <a href="${doc.url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">${doc.nome}</a>
+              <button type="button" data-action="remove-doc" data-id="${m.id}" data-doc-id="${doc.id}" style="background:none;border:none;color:var(--stamp);cursor:pointer;padding:0;font-size:13px;line-height:1;" aria-label="Rimuovi documento">✕</button>
+            </span>
+          `).join('')}
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <input type="text" placeholder="Nome (es. Fattura)" id="doc-nome-${m.id}" style="width:170px;">
+          <input type="url" placeholder="Link Google Drive" id="doc-url-${m.id}" style="flex:1;min-width:220px;">
+          <button type="button" class="btn small ghost" data-action="add-doc" data-id="${m.id}">+ Aggiungi documento</button>
+        </div>
+      </td>
+    </tr>` : ''}`;
   }).join('');
   const subtotal = `
     <tr class="subtotal-row">
-      <td></td><td></td><td></td><td></td><td>Totale${filterName || filterStato || filterAnno ? ' — ' + [filterName, filterStato ? statoPraticaInfo(filterStato).label : '', filterAnno].filter(Boolean).join(', ') : ''}</td><td></td><td></td>
+      <td></td><td></td><td></td><td></td><td></td><td>Totale${filterName || filterStato || filterAnno ? ' — ' + [filterName, filterStato ? statoPraticaInfo(filterStato).label : '', filterAnno].filter(Boolean).join(', ') : ''}</td><td></td><td></td>
       <td class="amount">${euro(totTotale)}</td>
       <td class="amount">${euro(totFasiRichiesto)}</td>
       <td class="amount">${euro(totFasi)}</td>
@@ -2358,7 +2379,8 @@ document.getElementById('mf-save').addEventListener('click', async (e) => {
     secondoRifiutato: document.getElementById('mf-secondo-rifiutato').checked,
     mammaInviata: document.getElementById('mf-mamma-inviata').checked,
     mammaInviataData: document.getElementById('mf-mamma-data').value || undefined,
-    bloccata: vuoleBloccare
+    bloccata: vuoleBloccare,
+    documenti: (editingMedicalId ? (medical.find(m => m.id===editingMedicalId) || {}).documenti : []) || []
   };
   if(editingMedicalId){
     medical = medical.map(m => m.id===editingMedicalId ? entry : m);
@@ -2444,7 +2466,32 @@ document.getElementById('medical-body').addEventListener('click', async (e) => {
   const action = btn.dataset.action;
   const item = medical.find(m => m.id===id);
   if(!item) return;
+  if(action==='toggle-doc-row'){
+    if(expandedMedicalIds.has(id)) expandedMedicalIds.delete(id);
+    else expandedMedicalIds.add(id);
+    renderMedical();
+    return;
+  }
   if(item.bloccata) return;
+  if(action==='add-doc'){
+    const nomeInput = document.getElementById(`doc-nome-${id}`);
+    const urlInput = document.getElementById(`doc-url-${id}`);
+    const nome = nomeInput.value.trim();
+    const url = urlInput.value.trim();
+    if(!nome || !url){ showFormError('Inserisci sia il nome che il link del documento.'); return; }
+    item.documenti = item.documenti || [];
+    item.documenti.push({id: uid(), nome, url});
+    await saveMedical();
+    renderMedical();
+    return;
+  }
+  if(action==='remove-doc'){
+    const docId = btn.dataset.docId;
+    item.documenti = (item.documenti || []).filter(d => d.id !== docId);
+    await saveMedical();
+    renderMedical();
+    return;
+  }
   if(action==='delete-medical'){
     confirmingMedicalDeleteId = id;
     renderMedical();
@@ -2491,7 +2538,7 @@ document.getElementById('toggle-backup-panel').addEventListener('click', () => {
 let confirmingBackupImport = false;
 
 const REC_CSV_COLS = ['id','nome','scadenza','importo','ricorrenza','stato','note','bloccato'];
-const MED_CSV_COLS = ['id','richiedente','tipoDocumento','numeroDocumento','dataDocumento','descrizione','modalita','totale','stato','fasiPagato','fasiRifiutato','secondoRimborsato','secondoRifiutato','mammaInviata','mammaInviataData','bloccata'];
+const MED_CSV_COLS = ['id','richiedente','tipoDocumento','numeroDocumento','dataDocumento','descrizione','modalita','totale','stato','fasiPagato','fasiRifiutato','secondoRimborsato','secondoRifiutato','mammaInviata','mammaInviataData','bloccata','documenti'];
 
 function csvEscape(value){
   const s = (value === null || value === undefined) ? '' : String(value);
@@ -2541,6 +2588,7 @@ function currentBackupCSV(){
     if(c === 'mammaInviata') return csvEscape(m.mammaInviata ? 'true' : 'false');
     if(c === 'mammaInviataData') return csvEscape(m.mammaInviataData || '');
     if(c === 'bloccata') return csvEscape(m.bloccata ? 'true' : 'false');
+    if(c === 'documenti') return csvEscape(JSON.stringify(m.documenti || []));
     return csvEscape(m[c]);
   }).join(','));
   const bilRows = bilancio.map(b => BIL_CSV_COLS.map((c,idx) => {
@@ -2627,7 +2675,8 @@ function parseBackupCSV(text){
       secondoRifiutato: raw.secondoRifiutato === 'true',
       mammaInviata: raw.mammaInviata === 'true',
       mammaInviataData: raw.mammaInviataData || undefined,
-      bloccata: raw.bloccata === 'true'
+      bloccata: raw.bloccata === 'true',
+      documenti: (() => { try{ return JSON.parse(raw.documenti || '[]'); }catch(e){ return []; } })()
     };
   }) : [];
 
