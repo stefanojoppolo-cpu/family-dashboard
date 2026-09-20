@@ -410,13 +410,21 @@
   <div class="summary" id="summary"></div>
 
   <nav class="tabs">
+    <button class="tab-btn active" data-tab="panoramica"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Panoramica</button>
     <button class="tab-btn" data-tab="recurring"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>Pagamenti ricorrenti</button>
-    <button class="tab-btn active" data-tab="medical"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Spese mediche</button>
+    <button class="tab-btn" data-tab="medical"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Spese mediche</button>
     <button class="tab-btn" data-tab="bilancio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><line x1="4" y1="20" x2="20" y2="20"/><line x1="7" y1="20" x2="7" y2="12"/><line x1="12" y1="20" x2="12" y2="6"/><line x1="17" y1="20" x2="17" y2="15"/></svg>Bilancio annuale</button>
     <button class="tab-btn" data-tab="contratti"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><path d="M6 2h9l5 5v15H6z"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>Contratti a scadenza</button>
     <button class="tab-btn" data-tab="documenti"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="9" r="2.3"/><path d="M8 17c0-2.2 1.8-3.5 4-3.5s4 1.3 4 3.5"/></svg>Documenti personali</button>
     <button class="tab-btn" data-tab="detrazioni"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><circle cx="12" cy="12" r="9"/><line x1="8" y1="16" x2="16" y2="8"/><circle cx="9" cy="9" r="0.6" fill="currentColor"/><circle cx="15" cy="15" r="0.6" fill="currentColor"/></svg>Detrazioni fiscali</button>
   </nav>
+
+  <section class="panel active" id="panel-panoramica">
+    <p class="form-section-title" style="margin-bottom:10px;">In scadenza a breve</p>
+    <div id="panoramica-urgenti" style="background:var(--paper-raised);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:28px;"></div>
+    <p class="form-section-title" style="margin-bottom:10px;">Le sei sezioni</p>
+    <div id="panoramica-cards" style="display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:12px;"></div>
+  </section>
 
   <section class="panel" id="panel-recurring">
     <div class="table-scroll">
@@ -477,7 +485,7 @@
     </div>
   </section>
 
-  <section class="panel active" id="panel-medical">
+  <section class="panel" id="panel-medical">
     <div class="filter-bar">
       <label style="margin-right:8px;">Richiedente</label>
       <select id="medical-filter">
@@ -1198,6 +1206,11 @@ async function saveDetrazioni(){
 function renderSummary(){
   const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab || 'recurring';
   const el = document.getElementById('summary');
+
+  if(activeTab === 'panoramica'){
+    el.innerHTML = '';
+    return;
+  }
 
   if(activeTab === 'recurring'){
     const upcoming = recurring.filter(p => p.stato==='da_pagare' && daysUntil(p.scadenza) >= 0 && daysUntil(p.scadenza) <= 30);
@@ -2008,6 +2021,101 @@ function renderDetrazioni(){
   updateSortIndicators('#panel-detrazioni', detrazioniSortKey, detrazioniSortDir);
 }
 
+const ICONA_RECURRING = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>`;
+const ICONA_MEDICAL = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`;
+const ICONA_BILANCIO = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="20"/><line x1="7" y1="20" x2="7" y2="12"/><line x1="12" y1="20" x2="12" y2="6"/><line x1="17" y1="20" x2="17" y2="15"/></svg>`;
+const ICONA_CONTRATTI = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>`;
+const ICONA_DOCUMENTI = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="9" r="2.3"/><path d="M8 17c0-2.2 1.8-3.5 4-3.5s4 1.3 4 3.5"/></svg>`;
+const ICONA_DETRAZIONI = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="8" y1="16" x2="16" y2="8"/><circle cx="9" cy="9" r="0.6" fill="currentColor"/><circle cx="15" cy="15" r="0.6" fill="currentColor"/></svg>`;
+
+function scadenzaLabel(giorni){
+  if(giorni < 0) return `scaduto da ${Math.abs(giorni)} giorn${Math.abs(giorni)===1?'o':'i'}`;
+  if(giorni === 0) return 'scade oggi';
+  return `tra ${giorni} giorn${giorni===1?'o':'i'}`;
+}
+
+function buildUrgentItems(){
+  const items = [];
+  recurring.forEach(p => {
+    if(p.stato !== 'da_pagare') return;
+    const g = daysUntil(p.scadenza);
+    if(g <= 30) items.push({icona: ICONA_RECURRING, label: p.nome, giorni: g, tab: 'recurring'});
+  });
+  contratti.forEach(c => {
+    if(c.dataFine){
+      const g = daysUntil(c.dataFine);
+      if(g <= 90) items.push({icona: ICONA_CONTRATTI, label: `${c.tipo} — contratto`, giorni: g, tab: 'contratti'});
+    }
+    if(c.dataDisdetta){
+      const g = daysUntil(c.dataDisdetta);
+      if(g <= 90) items.push({icona: ICONA_CONTRATTI, label: `${c.tipo} — disdetta`, giorni: g, tab: 'contratti'});
+    }
+  });
+  documenti.forEach(d => {
+    if(!d.dataScadenza) return;
+    const g = daysUntil(d.dataScadenza);
+    if(g <= 90) items.push({icona: ICONA_DOCUMENTI, label: `${d.tipo} di ${d.intestatario}`, giorni: g, tab: 'documenti'});
+  });
+  items.sort((a,b) => a.giorni - b.giorni);
+  return items.slice(0, 8);
+}
+
+function jumpToTab(tab){
+  const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+  if(btn) btn.click();
+}
+
+function renderPanoramica(){
+  const urgentiEl = document.getElementById('panoramica-urgenti');
+  const items = buildUrgentItems();
+  if(items.length === 0){
+    urgentiEl.innerHTML = `<div style="padding:16px;"><span class="doc-ref">Nessuna scadenza urgente al momento.</span></div>`;
+  } else {
+    urgentiEl.innerHTML = items.map((it, idx) => `
+      <div data-jump-tab="${it.tab}" style="display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;${idx < items.length-1 ? 'border-bottom:1px solid var(--line);' : ''}">
+        <span style="color:${it.giorni < 0 ? 'var(--stamp)' : 'var(--gold)'};display:flex;flex-shrink:0;">${it.icona}</span>
+        <span style="font-size:13px;flex:1;">${it.label}</span>
+        <span style="font-size:12.5px;font-weight:500;color:${it.giorni < 0 ? 'var(--stamp)' : 'var(--gold)'};">${scadenzaLabel(it.giorni)}</span>
+      </div>
+    `).join('');
+  }
+
+  const scaduti90 = documenti.filter(d => d.dataScadenza && daysUntil(d.dataScadenza) < 0).length;
+  const contrattiInScadenza90 = contratti.filter(c => c.dataFine && daysUntil(c.dataFine) >= 0 && daysUntil(c.dataFine) <= 90).length;
+  const daPagareCount = recurring.filter(p => p.stato === 'da_pagare').length;
+  const residuoTotale = medical.reduce((s,m) => { const {residuo} = medicalRowNumbers(m); return s + residuo; }, 0);
+  const anniBilancio = [...new Set(bilancio.map(b => b.anno))].sort((a,b)=>b-a);
+  const annoBilRecente = anniBilancio[0];
+  const risparmioRecente = bilancio.filter(b => b.anno === annoBilRecente).reduce((s,b) => s + (Number(b.entrate)||0) - (Number(b.uscite)||0), 0);
+  const anniDetr = [...new Set(detrazioni.map(d => (d.data||'').slice(0,4)))].filter(Boolean).sort().reverse();
+  const annoDetrRecente = anniDetr[0];
+  const totaleDetrRecente = detrazioni.filter(d => (d.data||'').slice(0,4)===annoDetrRecente).reduce((s,d) => s + (Number(d.importo)||0), 0);
+
+  const cards = [
+    {icona: ICONA_RECURRING, valore: daPagareCount, label: 'Pagamenti da fare', tab: 'recurring'},
+    {icona: ICONA_MEDICAL, valore: euro(residuoTotale), label: 'Ancora da rimborsare', tab: 'medical'},
+    {icona: ICONA_BILANCIO, valore: annoBilRecente ? `${risparmioRecente>=0?'+':''}${euro(risparmioRecente)}` : '—', label: annoBilRecente ? `Risparmio ${annoBilRecente}` : 'Nessun bilancio', tab: 'bilancio'},
+    {icona: ICONA_CONTRATTI, valore: contrattiInScadenza90, label: 'Contratti in scadenza', tab: 'contratti'},
+    {icona: ICONA_DOCUMENTI, valore: scaduti90, label: 'Documenti scaduti', tab: 'documenti'},
+    {icona: ICONA_DETRAZIONI, valore: annoDetrRecente ? euro(totaleDetrRecente) : '—', label: annoDetrRecente ? `Detrazioni ${annoDetrRecente}` : 'Nessuna detrazione', tab: 'detrazioni'}
+  ];
+  document.getElementById('panoramica-cards').innerHTML = cards.map(c => `
+    <div data-jump-tab="${c.tab}" style="background:var(--paper);border-radius:8px;padding:0.9rem;cursor:pointer;">
+      <span style="color:var(--ink-soft);display:flex;">${c.icona}</span>
+      <p style="font-size:20px;font-weight:500;margin:8px 0 0;">${c.valore}</p>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;">${c.label}</p>
+    </div>
+  `).join('');
+}
+document.getElementById('panoramica-urgenti').addEventListener('click', (e) => {
+  const row = e.target.closest('[data-jump-tab]');
+  if(row) jumpToTab(row.dataset.jumpTab);
+});
+document.getElementById('panoramica-cards').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-jump-tab]');
+  if(card) jumpToTab(card.dataset.jumpTab);
+});
+
 function renderAll(){
   renderSummary();
   renderRecurring();
@@ -2016,6 +2124,7 @@ function renderAll(){
   renderContratti();
   renderDocumenti();
   renderDetrazioni();
+  renderPanoramica();
 }
 
 // Tabs
