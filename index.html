@@ -1910,7 +1910,13 @@ function renderDocumenti(){
     </tr>${d.id === renewingDocumentoId ? `
     <tr class="doc-row" data-parent-id="${d.id}">
       <td colspan="10" style="background:var(--paper);padding:14px 14px 14px 20px;">
-        <p style="margin:0 0 10px;font-size:13px;color:var(--ink-soft);">Rinnovo — inserisci la nuova data di rilascio e la nuova scadenza; il resto (tipo, intestatario, ente, note) resta invariato.</p>
+        <p style="margin:0 0 10px;font-size:13px;color:var(--ink-soft);">Rinnovo — aggiorna i dati del nuovo documento; il resto (tipo, intestatario, ente, note) resta invariato.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
+          <label style="font-size:13px;">Nuovo numero</label>
+          <input type="text" id="renew-numero-${d.id}" value="${d.numero || ''}" style="width:170px;">
+          <label style="font-size:13px;margin-left:8px;">Nuovo link al documento</label>
+          <input type="url" id="renew-link-${d.id}" value="${d.link || ''}" style="flex:1;min-width:220px;">
+        </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
           <label style="font-size:13px;">Nuova data rilascio</label>
           <input type="date" id="renew-rilascio-${d.id}" value="${new Date().toISOString().slice(0,10)}">
@@ -3329,9 +3335,13 @@ document.getElementById('documenti-body').addEventListener('click', async (e) =>
   } else if(action==='save-renew-documento'){
     const nuovaRilascio = document.getElementById(`renew-rilascio-${id}`).value;
     const nuovaScadenza = document.getElementById(`renew-scadenza-${id}`).value;
+    const nuovoNumero = document.getElementById(`renew-numero-${id}`).value.trim();
+    const nuovoLink = document.getElementById(`renew-link-${id}`).value.trim();
     if(!nuovaScadenza){ showFormError('Inserisci la nuova data di scadenza.'); return; }
     item.dataRilascio = nuovaRilascio || null;
     item.dataScadenza = nuovaScadenza;
+    item.numero = nuovoNumero;
+    item.link = nuovoLink;
     await saveDocumenti();
     renewingDocumentoId = null;
     renderAll();
