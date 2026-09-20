@@ -323,6 +323,13 @@
     tr.subtotal-row{border:none;}
     td{border:none;padding:3px 0;}
     .summary{flex-direction:column;}
+    .filter-bar{flex-wrap:wrap;overflow-x:visible;white-space:normal;padding-bottom:0;row-gap:8px;}
+    .filter-bar label{margin-left:0 !important;}
+    td[data-label]::before{
+      content: attr(data-label) ": ";
+      font-weight:600;
+      color:var(--ink-soft);
+    }
   }
 </style>
 </head>
@@ -1471,11 +1478,11 @@ function renderRecurring(){
   const sorted = applySort(recurring, recurringSortValue, recurringSortKey, recurringSortDir);
   body.innerHTML = sorted.map(p => `
     <tr class="${rowClassRecurring(p)}" data-id="${p.id}">
-      <td>${p.nome}${p.note ? `<br><span style="color:var(--ink-soft);font-size:12.5px">${p.note}</span>` : ''}</td>
-      <td>${fmtDate(p.scadenza)}</td>
-      <td class="amount">${euro(p.importo)}</td>
-      <td>${p.ricorrenza}</td>
-      <td>${statusBadgeRecurring(p)}</td>
+      <td data-label="Voce">${p.nome}${p.note ? `<br><span style="color:var(--ink-soft);font-size:12.5px">${p.note}</span>` : ''}</td>
+      <td data-label="Scadenza">${fmtDate(p.scadenza)}</td>
+      <td class="amount" data-label="Importo">${euro(p.importo)}</td>
+      <td data-label="Ricorrenza">${p.ricorrenza}</td>
+      <td data-label="Stato">${statusBadgeRecurring(p)}</td>
       <td>
         <div class="row-actions">
           ${p.bloccato ? `
@@ -1519,20 +1526,20 @@ function renderMedical(){
     if(eSara && praticaConclusa) totQuotaMamma += quotaMamma;
     return `
     <tr data-id="${m.id}">
-      <td>${fmtDate(m.dataDocumento)}</td>
-      <td>${m.tipoDocumento}</td>
-      <td>${m.numeroDocumento}</td>
-      <td>${m.richiedente}</td>
-      <td>${m.descrizione}</td>
-      <td><span class="modalita-badge">${m.modalita}</span></td>
-      <td>${(() => { const s = statoPraticaInfo(m.stato); return `<span class="badge ${s.cls}">${s.label}</span>`; })()}</td>
-      <td class="amount">${euro(totale)}</td>
-      <td class="amount">${euro(fasiRichiesto)}</td>
-      <td class="amount">${m.fasiRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(fasiPagato)}</td>
-      <td class="amount">${euro(richiestoSecondo)}</td>
-      <td class="amount">${m.secondoRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(assRimborsato)}</td>
-      <td class="amount">${euro(residuo)}</td>
-      <td class="amount">${eSara && praticaConclusa && residuo > 0 ? `${euro(quotaMamma)}${m.mammaInviata ? `<br><span class="doc-ref">inviata${m.mammaInviataData ? ' il ' + fmtDate(m.mammaInviataData) : ''}</span>` : ''}` : '—'}</td>
+      <td data-label="Data">${fmtDate(m.dataDocumento)}</td>
+      <td data-label="Tipo documento">${m.tipoDocumento}</td>
+      <td data-label="Numero documento">${m.numeroDocumento}</td>
+      <td data-label="Richiedente">${m.richiedente}</td>
+      <td data-label="Prestazione">${m.descrizione}</td>
+      <td data-label="Modalità"><span class="modalita-badge">${m.modalita}</span></td>
+      <td data-label="Stato pratica">${(() => { const s = statoPraticaInfo(m.stato); return `<span class="badge ${s.cls}">${s.label}</span>`; })()}</td>
+      <td class="amount" data-label="Totale">${euro(totale)}</td>
+      <td class="amount" data-label="FASI richiesto">${euro(fasiRichiesto)}</td>
+      <td class="amount" data-label="FASI pagato">${m.fasiRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(fasiPagato)}</td>
+      <td class="amount" data-label="2° liv. richiesto">${euro(richiestoSecondo)}</td>
+      <td class="amount" data-label="2° liv. pagato">${m.secondoRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(assRimborsato)}</td>
+      <td class="amount" data-label="Residuo">${euro(residuo)}</td>
+      <td class="amount" data-label="Quota Pizzinat">${eSara && praticaConclusa && residuo > 0 ? `${euro(quotaMamma)}${m.mammaInviata ? `<br><span class="doc-ref">inviata${m.mammaInviataData ? ' il ' + fmtDate(m.mammaInviataData) : ''}</span>` : ''}` : '—'}</td>
       <td>
         <div class="row-actions">
           ${m.bloccata ? `
@@ -1623,12 +1630,12 @@ function renderBilancio(){
     const haMensile = Array.isArray(b.entrateMensili) && b.entrateMensili.some(v => v);
     return `
     <tr data-id="${b.id}">
-      <td>${b.anno}</td>
-      <td>${b.conto}</td>
-      <td class="amount">${euro(entrate)}</td>
-      <td class="amount">${euro(uscite)}</td>
-      <td class="amount" style="color:${risparmio < 0 ? 'var(--stamp)' : 'var(--teal)'};font-weight:600;">${risparmio >= 0 ? '+' : ''}${euro(risparmio)}</td>
-      <td>${haMensile ? '<span class="badge paid">Mensile</span>' : '<span class="doc-ref">Solo annuale</span>'}</td>
+      <td data-label="Anno">${b.anno}</td>
+      <td data-label="Conto">${b.conto}</td>
+      <td class="amount" data-label="Entrate">${euro(entrate)}</td>
+      <td class="amount" data-label="Uscite">${euro(uscite)}</td>
+      <td class="amount" data-label="Risparmio" style="color:${risparmio < 0 ? 'var(--stamp)' : 'var(--teal)'};font-weight:600;">${risparmio >= 0 ? '+' : ''}${euro(risparmio)}</td>
+      <td data-label="Dettaglio">${haMensile ? '<span class="badge paid">Mensile</span>' : '<span class="doc-ref">Solo annuale</span>'}</td>
       <td>
         <div class="row-actions">
           ${b.bloccato ? `
@@ -1726,17 +1733,17 @@ function renderContratti(){
     const rowCls = worstCls === 'overdue' ? 'row-overdue' : worstCls === 'soon' ? 'row-soon' : 'row-ok';
     return `
     <tr class="${rowCls}" data-id="${c.id}">
-      <td>${c.tipo}</td>
-      <td>${c.controparte}</td>
-      <td>${c.riferimento || '—'}</td>
-      <td>${fmtDate(c.dataInizio)}</td>
-      <td>${c.dataFine ? fmtDate(c.dataFine) : '—'}</td>
-      <td>${c.dataDisdetta ? fmtDate(c.dataDisdetta) : '—'}</td>
-      <td class="amount">${c.canone ? euro(c.canone) : '—'}</td>
-      <td class="amount">${c.prezzoUnitario ? `${c.prezzoUnitario.toString().replace('.',',')} €/${c.unitaMisura || '?'}` : '—'}</td>
-      <td>${c.note || '—'}</td>
-      <td>${statoC ? `<span class="badge ${statoC.cls}">${statoC.label}</span>` : '—'}</td>
-      <td>${statoD ? `<span class="badge ${statoD.cls}">${statoD.label}</span>` : '—'}</td>
+      <td data-label="Tipo">${c.tipo}</td>
+      <td data-label="Fornitore/Controparte">${c.controparte}</td>
+      <td data-label="Riferimento">${c.riferimento || '—'}</td>
+      <td data-label="Inizio">${fmtDate(c.dataInizio)}</td>
+      <td data-label="Fine/Scadenza">${c.dataFine ? fmtDate(c.dataFine) : '—'}</td>
+      <td data-label="Limite disdetta">${c.dataDisdetta ? fmtDate(c.dataDisdetta) : '—'}</td>
+      <td class="amount" data-label="Canone mensile">${c.canone ? euro(c.canone) : '—'}</td>
+      <td class="amount" data-label="Prezzo unitario">${c.prezzoUnitario ? `${c.prezzoUnitario.toString().replace('.',',')} €/${c.unitaMisura || '?'}` : '—'}</td>
+      <td data-label="Note">${c.note || '—'}</td>
+      <td data-label="Stato contratto">${statoC ? `<span class="badge ${statoC.cls}">${statoC.label}</span>` : '—'}</td>
+      <td data-label="Stato disdetta">${statoD ? `<span class="badge ${statoD.cls}">${statoD.label}</span>` : '—'}</td>
       <td>
         <div class="row-actions">
           ${c.id === confirmingContrattoDeleteId ? `
@@ -1821,13 +1828,13 @@ function renderDocumenti(){
     const rowCls = stato.cls === 'overdue' ? 'row-overdue' : stato.cls === 'soon' ? 'row-soon' : 'row-ok';
     return `
     <tr class="${rowCls}" data-id="${d.id}">
-      <td>${d.tipo}</td>
-      <td>${d.intestatario}</td>
-      <td>${d.enteRilascio || '—'}</td>
-      <td>${d.dataRilascio ? fmtDate(d.dataRilascio) : '—'}</td>
-      <td>${d.dataScadenza ? fmtDate(d.dataScadenza) : '—'}</td>
-      <td>${d.note || '—'}</td>
-      <td><span class="badge ${stato.cls}">${stato.label}</span></td>
+      <td data-label="Tipo">${d.tipo}</td>
+      <td data-label="Intestatario">${d.intestatario}</td>
+      <td data-label="Ente rilascio">${d.enteRilascio || '—'}</td>
+      <td data-label="Rilascio">${d.dataRilascio ? fmtDate(d.dataRilascio) : '—'}</td>
+      <td data-label="Scadenza">${d.dataScadenza ? fmtDate(d.dataScadenza) : '—'}</td>
+      <td data-label="Note">${d.note || '—'}</td>
+      <td data-label="Stato"><span class="badge ${stato.cls}">${stato.label}</span></td>
       <td>
         <div class="row-actions">
           ${d.id === confirmingDocumentoDeleteId ? `
@@ -1912,11 +1919,11 @@ function renderDetrazioni(){
     totImporto += Number(d.importo) || 0;
     return `
     <tr data-id="${d.id}">
-      <td>${d.categoria}</td>
-      <td>${d.intestatario}</td>
-      <td>${d.data ? fmtDate(d.data) : '—'}</td>
-      <td class="amount">${euro(d.importo)}</td>
-      <td>${d.note || '—'}</td>
+      <td data-label="Categoria">${d.categoria}</td>
+      <td data-label="Intestatario">${d.intestatario}</td>
+      <td data-label="Data">${d.data ? fmtDate(d.data) : '—'}</td>
+      <td class="amount" data-label="Importo">${euro(d.importo)}</td>
+      <td data-label="Note">${d.note || '—'}</td>
       <td>
         <div class="row-actions">
           ${d.id === confirmingDetrazioneDeleteId ? `
