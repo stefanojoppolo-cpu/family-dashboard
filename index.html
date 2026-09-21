@@ -511,7 +511,7 @@
     <table>
       <thead>
         <tr>
-          <th></th><th data-sort-key="dataDocumento">Data <span class="sort-ind"></span></th><th data-sort-key="tipoDocumento">Tipo documento <span class="sort-ind"></span></th><th data-sort-key="numeroDocumento">Numero documento <span class="sort-ind"></span></th><th data-sort-key="richiedente">Richiedente <span class="sort-ind"></span></th><th data-sort-key="descrizione">Prestazione <span class="sort-ind"></span></th><th data-sort-key="modalita">Modalità <span class="sort-ind"></span></th><th data-sort-key="stato">Stato pratica <span class="sort-ind"></span></th><th data-sort-key="totale">Totale <span class="sort-ind"></span></th><th data-sort-key="fasiRichiesto">FASI richiesto <span class="sort-ind"></span></th><th data-sort-key="fasiPagato">FASI pagato <span class="sort-ind"></span></th><th data-sort-key="richiestoSecondo">2° liv. richiesto <span class="sort-ind"></span></th><th data-sort-key="assRimborsato">2° liv. pagato <span class="sort-ind"></span></th><th data-sort-key="residuo">Residuo <span class="sort-ind"></span></th><th data-sort-key="quotaMamma">Quota Pizzinat <span class="sort-ind"></span></th><th></th>
+          <th></th><th data-sort-key="dataDocumento">Data <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="tipoDocumento">Tipo documento <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="numeroDocumento">Numero documento <span class="sort-ind"></span></th><th data-sort-key="richiedente">Richiedente <span class="sort-ind"></span></th><th data-sort-key="descrizione">Prestazione <span class="sort-ind"></span></th><th data-sort-key="note">Note <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="modalita">Modalità <span class="sort-ind"></span></th><th data-sort-key="stato">Stato pratica <span class="sort-ind"></span></th><th data-sort-key="totale">Totale <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="fasiRichiesto">FASI richiesto <span class="sort-ind"></span></th><th id="th-fasi-pagato" data-sort-key="fasiPagato">FASI pagato <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="richiestoSecondo">2° liv. richiesto <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="assRimborsato">2° liv. pagato <span class="sort-ind"></span></th><th data-sort-key="residuo">Residuo <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="quotaMamma">Quota Pizzinat <span class="sort-ind"></span></th><th></th>
         </tr>
       </thead>
       <tbody id="medical-body"></tbody>
@@ -560,13 +560,13 @@
               <option value="Stefano"><option value="Ela"><option value="Sara">
             </datalist>
           </div>
-          <div class="field">
+          <div class="field solo-completo">
             <label>Tipo documento</label>
             <select id="mf-tipodoc">
               <option>Fattura</option><option>Ricevuta</option><option>Scontrino</option>
             </select>
           </div>
-          <div class="field">
+          <div class="field solo-completo">
             <label>Numero documento</label>
             <input id="mf-numerodoc" placeholder="es. 41212">
           </div>
@@ -586,12 +586,18 @@
             </datalist>
           </div>
         </div>
+        <div class="form-row form-row-3">
+          <div class="field span3">
+            <label>Note</label>
+            <input id="mf-note" placeholder="opzionale">
+          </div>
+        </div>
       </div>
 
       <div class="form-section">
         <p class="form-section-title">Modalità e stato</p>
         <div class="form-row form-row-modstato">
-          <div class="field">
+          <div class="field solo-completo">
             <label>Modalità</label>
             <select id="mf-modalita">
               <option value="Indiretta">Indiretta (anticipo e chiedo rimborso)</option>
@@ -621,22 +627,22 @@
             <label>Totale fattura (€)</label>
             <input type="number" step="0.01" id="mf-totale">
           </div>
-          <div class="field">
+          <div class="field solo-completo">
             <label>Richiesto FASI (€)</label>
             <input type="text" id="mf-fasi-richiesto" disabled>
           </div>
           <div class="field">
-            <label>Pagato da FASI (€)</label>
+            <label id="mf-fasi-pagato-label">Pagato da FASI (€)</label>
             <input type="number" step="0.01" id="mf-fasi-pagato" value="0">
           </div>
-          <div class="field">
+          <div class="field solo-completo">
             <label>FASI rifiutato</label>
             <label style="display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:4px;padding:8px 10px;height:36px;box-sizing:border-box;">
               <input type="checkbox" id="mf-fasi-rifiutato" style="width:auto;"> Sì
             </label>
           </div>
         </div>
-        <div class="form-row form-row-importi">
+        <div class="form-row form-row-importi solo-completo">
           <div class="field">
             <label>Richiesta 2° livello (€)</label>
             <input type="text" id="mf-secondo-richiesto" disabled>
@@ -656,9 +662,15 @@
             </label>
           </div>
         </div>
+        <div class="form-row form-row-importi solo-semplice">
+          <div class="field">
+            <label>Residuo (€)</label>
+            <input type="text" id="mf-residuo-semplice" disabled>
+          </div>
+        </div>
       </div>
 
-      <div class="form-section">
+      <div class="form-section solo-completo">
         <p class="form-section-title">Segnalazione a mamma di Sara</p>
         <div class="form-row-mamma">
           <label style="display:flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap;">
@@ -1229,6 +1241,12 @@ function metricsMedical(conMassimali){
     const {residuo} = medicalRowNumbers(m);
     return sum + (residuo > 0.004 ? residuo/2 : 0);
   }, 0);
+  if(modalitaSemplificata){
+    return [
+      {valore: fasiAperte, label: 'Pratiche aperte', cls: fasiAperte ? 'pend' : ''},
+      {valore: euro(pendenteFasi), label: 'Ancora da rimborsare', cls: pendenteFasi > 0 ? 'pend' : ''}
+    ];
+  }
   const items = [
     {valore: fasiAperte, label: 'In attesa di rimborso FASI', cls: fasiAperte ? 'pend' : ''},
     {valore: secondoAperte, label: 'In attesa di rimborso 2° livello', cls: secondoAperte ? 'pend' : ''},
@@ -1409,6 +1427,8 @@ let confirmingRecurringDeleteId = null;
 let confirmingMedicalDeleteId = null;
 let expandedMedicalIds = new Set();
 let visibleTabs = null; // null = nessuna restrizione, vede tutto
+const STEFANO_UID = '1NBqo2BMqHOhD8lyV1d237ZruUq1';
+let modalitaSemplificata = false;
 let confirmingLockMedical = false;
 let formDocumenti = [];
 let confirmingLockRecurring = false;
@@ -1439,6 +1459,7 @@ function medicalSortValue(m, key){
     case 'numeroDocumento': return (m.numeroDocumento||'').toLowerCase();
     case 'richiedente': return (m.richiedente||'').toLowerCase();
     case 'descrizione': return (m.descrizione||'').toLowerCase();
+    case 'note': return (m.note||'').toLowerCase();
     case 'modalita': return (m.modalita||'').toLowerCase();
     case 'stato': return statoPraticaInfo(m.stato).label.toLowerCase();
     case 'totale': return totale;
@@ -1525,7 +1546,7 @@ function renderMedical(){
   const body = document.getElementById('medical-body');
   const filtered = getFilteredMedical();
   if(filtered.length===0){
-    body.innerHTML = `<tr><td colspan="16"><div class="empty-state">Nessuna spesa medica registrata.</div></td></tr>`;
+    body.innerHTML = `<tr><td colspan="17"><div class="empty-state">Nessuna spesa medica registrata.</div></td></tr>`;
     updateSortIndicators('#panel-medical', medicalSortKey, medicalSortDir);
     return;
   }
@@ -1544,19 +1565,20 @@ function renderMedical(){
     <tr data-id="${m.id}">
       <td><button type="button" class="btn small ghost" data-action="toggle-doc-row" data-id="${m.id}" style="padding:4px 8px;" aria-label="Mostra documenti collegati">${isExpanded ? '▾' : '▸'}</button></td>
       <td data-label="Data">${fmtDate(m.dataDocumento)}</td>
-      <td data-label="Tipo documento">${m.tipoDocumento}</td>
-      <td data-label="Numero documento">${m.numeroDocumento}</td>
+      <td class="solo-completo" data-label="Tipo documento">${m.tipoDocumento}</td>
+      <td class="solo-completo" data-label="Numero documento">${m.numeroDocumento}</td>
       <td data-label="Richiedente">${m.richiedente}</td>
       <td data-label="Prestazione">${m.descrizione}</td>
-      <td data-label="Modalità"><span class="modalita-badge">${m.modalita}</span></td>
+      <td data-label="Note">${m.note || '—'}</td>
+      <td class="solo-completo" data-label="Modalità"><span class="modalita-badge">${m.modalita}</span></td>
       <td data-label="Stato pratica">${(() => { const s = statoPraticaInfo(m.stato); const tuttoRifiutato = m.stato === 'chiusa_completa' && m.fasiRifiutato && m.secondoRifiutato; return `<span class="badge ${tuttoRifiutato ? 'refused' : s.cls}">${s.label}</span>`; })()}</td>
       <td class="amount" data-label="Totale">${euro(totale)}</td>
-      <td class="amount" data-label="FASI richiesto">${euro(fasiRichiesto)}</td>
+      <td class="amount solo-completo" data-label="FASI richiesto">${euro(fasiRichiesto)}</td>
       <td class="amount" data-label="FASI pagato">${m.fasiRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(fasiPagato)}</td>
-      <td class="amount" data-label="2° liv. richiesto">${euro(richiestoSecondo)}</td>
-      <td class="amount" data-label="2° liv. pagato">${m.secondoRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(assRimborsato)}</td>
+      <td class="amount solo-completo" data-label="2° liv. richiesto">${euro(richiestoSecondo)}</td>
+      <td class="amount solo-completo" data-label="2° liv. pagato">${m.secondoRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(assRimborsato)}</td>
       <td class="amount" data-label="Residuo">${euro(residuo)}</td>
-      <td class="amount" data-label="Quota Pizzinat">${eSara && praticaConclusa && residuo > 0 ? `${euro(quotaMamma)}${m.mammaInviata ? `<br><span class="doc-ref">inviata${m.mammaInviataData ? ' il ' + fmtDate(m.mammaInviataData) : ''}</span>` : ''}` : '—'}</td>
+      <td class="amount solo-completo" data-label="Quota Pizzinat">${eSara && praticaConclusa && residuo > 0 ? `${euro(quotaMamma)}${m.mammaInviata ? `<br><span class="doc-ref">inviata${m.mammaInviataData ? ' il ' + fmtDate(m.mammaInviataData) : ''}</span>` : ''}` : '—'}</td>
       <td>
         <div class="row-actions">
           ${m.bloccata ? `
@@ -1589,14 +1611,14 @@ function renderMedical(){
   }).join('');
   const subtotal = `
     <tr class="subtotal-row">
-      <td></td><td></td><td></td><td></td><td></td><td>Totale${filterName || filterStato || filterAnno ? ' — ' + [filterName, filterStato ? statoPraticaInfo(filterStato).label : '', filterAnno].filter(Boolean).join(', ') : ''}</td><td></td><td></td>
+      <td></td><td></td><td class="solo-completo"></td><td class="solo-completo"></td><td></td><td>Totale${filterName || filterStato || filterAnno ? ' — ' + [filterName, filterStato ? statoPraticaInfo(filterStato).label : '', filterAnno].filter(Boolean).join(', ') : ''}</td><td></td><td class="solo-completo"></td><td></td>
       <td class="amount">${euro(totTotale)}</td>
-      <td class="amount">${euro(totFasiRichiesto)}</td>
+      <td class="amount solo-completo">${euro(totFasiRichiesto)}</td>
       <td class="amount">${euro(totFasi)}</td>
-      <td class="amount">${euro(totRichiestoSecondo)}</td>
-      <td class="amount">${euro(totAss)}</td>
+      <td class="amount solo-completo">${euro(totRichiestoSecondo)}</td>
+      <td class="amount solo-completo">${euro(totAss)}</td>
       <td class="amount">${euro(totResiduo)}</td>
-      <td class="amount">${totQuotaMamma > 0 ? euro(totQuotaMamma) : '—'}</td>
+      <td class="amount solo-completo">${totQuotaMamma > 0 ? euro(totQuotaMamma) : '—'}</td>
       <td></td>
     </tr>`;
   body.innerHTML = rows + subtotal;
@@ -2106,6 +2128,7 @@ function renderAll(){
   renderDocumenti();
   renderDetrazioni();
   renderPanoramica();
+  applyModalitaVisibility();
 }
 
 // Tabs
@@ -2188,13 +2211,14 @@ function resetMedicalForm(){
   document.getElementById('mf-numerodoc').value = '';
   document.getElementById('mf-data').value = '';
   document.getElementById('mf-descrizione').value = '';
+  document.getElementById('mf-note').value = '';
   document.getElementById('mf-modalita').value = 'Indiretta';
   document.getElementById('mf-totale').value = '';
   document.getElementById('mf-fasi-pagato').value = '0';
   document.getElementById('mf-fasi-rifiutato').checked = false;
   document.getElementById('mf-ass-rimborsato').value = '0';
   document.getElementById('mf-secondo-rifiutato').checked = false;
-  document.getElementById('mf-stato').value = 'da_aprire_fasi';
+  document.getElementById('mf-stato').value = modalitaSemplificata ? 'aperta_fasi' : 'da_aprire_fasi';
   document.getElementById('mf-mamma-inviata').checked = false;
   document.getElementById('mf-mamma-data').value = '';
   document.getElementById('mf-bloccata').checked = false;
@@ -2248,6 +2272,7 @@ function updateMedicalComputedFields(){
   document.getElementById('mf-fasi-richiesto').value = euro(fasiRichiesto);
   document.getElementById('mf-secondo-richiesto').value = euro(richiestoSecondo);
   document.getElementById('mf-residuo').value = euro(residuo);
+  document.getElementById('mf-residuo-semplice').value = euro(residuo);
 }
 ['mf-totale','mf-fasi-pagato','mf-ass-rimborsato','mf-stato'].forEach(id => {
   document.getElementById(id).addEventListener('input', updateMedicalComputedFields);
@@ -2529,6 +2554,7 @@ document.getElementById('mf-save').addEventListener('click', async (e) => {
     numeroDocumento: document.getElementById('mf-numerodoc').value.trim(),
     dataDocumento,
     descrizione,
+    note: document.getElementById('mf-note').value.trim(),
     modalita: document.getElementById('mf-modalita').value,
     totale,
     stato: document.getElementById('mf-stato').value,
@@ -2655,6 +2681,7 @@ document.getElementById('medical-body').addEventListener('click', async (e) => {
     document.getElementById('mf-numerodoc').value = item.numeroDocumento;
     document.getElementById('mf-data').value = item.dataDocumento;
     document.getElementById('mf-descrizione').value = item.descrizione;
+    document.getElementById('mf-note').value = item.note || '';
     document.getElementById('mf-modalita').value = item.modalita;
     document.getElementById('mf-totale').value = item.totale;
     document.getElementById('mf-fasi-pagato').value = item.fasi.pagato;
@@ -2684,7 +2711,7 @@ document.getElementById('toggle-backup-panel').addEventListener('click', () => {
 let confirmingBackupImport = false;
 
 const REC_CSV_COLS = ['id','nome','scadenza','importo','ricorrenza','stato','note','bloccato'];
-const MED_CSV_COLS = ['id','richiedente','tipoDocumento','numeroDocumento','dataDocumento','descrizione','modalita','totale','stato','fasiPagato','fasiRifiutato','secondoRimborsato','secondoRifiutato','mammaInviata','mammaInviataData','bloccata','documenti'];
+const MED_CSV_COLS = ['id','richiedente','tipoDocumento','numeroDocumento','dataDocumento','descrizione','note','modalita','totale','stato','fasiPagato','fasiRifiutato','secondoRimborsato','secondoRifiutato','mammaInviata','mammaInviataData','bloccata','documenti'];
 
 function csvEscape(value){
   const s = (value === null || value === undefined) ? '' : String(value);
@@ -2812,6 +2839,7 @@ function parseBackupCSV(text){
       numeroDocumento: raw.numeroDocumento,
       dataDocumento: raw.dataDocumento,
       descrizione: raw.descrizione,
+      note: raw.note,
       modalita: raw.modalita,
       totale: parseFloat(raw.totale) || 0,
       stato: raw.stato,
@@ -3461,6 +3489,24 @@ function applyTabVisibility(){
     if(primaConsentita) primaConsentita.click();
   }
 }
+function applyModalitaVisibility(){
+  document.querySelectorAll('.solo-completo').forEach(el => { el.style.display = modalitaSemplificata ? 'none' : ''; });
+  document.querySelectorAll('.solo-semplice').forEach(el => { el.style.display = modalitaSemplificata ? '' : 'none'; });
+  const statoSelect = document.getElementById('mf-stato');
+  if(statoSelect){
+    Array.from(statoSelect.options).forEach(opt => {
+      opt.hidden = modalitaSemplificata && !['aperta_fasi','chiusa_completa'].includes(opt.value);
+    });
+    if(modalitaSemplificata){
+      statoSelect.querySelector('option[value="aperta_fasi"]').textContent = 'Aperta';
+      statoSelect.querySelector('option[value="chiusa_completa"]').textContent = 'Chiusa';
+    }
+  }
+  const labelRimborsato = document.getElementById('mf-fasi-pagato-label');
+  if(labelRimborsato) labelRimborsato.textContent = modalitaSemplificata ? 'Rimborsato (€)' : 'Pagato da FASI (€)';
+  const thRimborsato = document.getElementById('th-fasi-pagato');
+  if(thRimborsato) thRimborsato.childNodes[0].textContent = modalitaSemplificata ? 'Rimborsato ' : 'FASI pagato ';
+}
 
 onAuthStateChanged(auth, async (user) => {
   if(user){
@@ -3470,8 +3516,10 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('logout-email').textContent = user.email || '';
     document.getElementById('auth-email').value = '';
     document.getElementById('auth-password').value = '';
+    modalitaSemplificata = user.uid !== STEFANO_UID;
     await loadAccessRestrictions();
     applyTabVisibility();
+    applyModalitaVisibility();
     await loadData();
     renderAll();
   } else {
