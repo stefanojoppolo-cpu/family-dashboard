@@ -423,7 +423,7 @@
     <p class="form-section-title" style="margin-bottom:10px;">In scadenza a breve</p>
     <div id="panoramica-urgenti" style="background:var(--paper-raised);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:28px;"></div>
     <p class="form-section-title" style="margin-bottom:10px;">Le sei sezioni</p>
-    <div id="panoramica-cards" style="display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:12px;"></div>
+    <div id="panoramica-cards"></div>
   </section>
 
   <section class="panel" id="panel-recurring">
@@ -1203,6 +1203,112 @@ async function saveDetrazioni(){
   catch(e){ console.error('Errore salvataggio detrazioni', e); showSaveWarning('Il salvataggio non è riuscito. Riprova o ricarica la pagina.'); }
 }
 
+function metricsRecurring(){
+  const upcoming = recurring.filter(p => p.stato==='da_pagare' && daysUntil(p.scadenza) >= 0 && daysUntil(p.scadenza) <= 30);
+  const overdue = recurring.filter(p => p.stato==='da_pagare' && daysUntil(p.scadenza) < 0);
+  const daPagareTotale = recurring.filter(p => p.stato==='da_pagare').reduce((s,p)=> s + (Number(p.importo)||0), 0);
+  return [
+    {valore: overdue.length, label: 'Pagamenti scaduti', cls: overdue.length ? 'warn' : ''},
+    {valore: upcoming.length, label: 'In scadenza nei 30 giorni', cls: upcoming.length ? 'pend' : ''},
+    {valore: euro(daPagareTotale), label: 'Totale ancora da pagare', cls: ''}
+  ];
+}
+
+function metricsMedical(conMassimali){
+  const fasiAperte = medical.filter(m => ['da_aprire_fasi','aperta_fasi'].includes(m.stato)).length;
+  const secondoAperte = medical.filter(m => ['da_aprire_secondo','aperta_secondo'].includes(m.stato)).length;
+  const pendenteFasi = medical
+    .filter(m => ['da_aprire_fasi','aperta_fasi'].includes(m.stato))
+    .reduce((sum, m) => { const {totale, fasiPagato} = medicalRowNumbers(m); return sum + Math.max(0, totale - fasiPagato); }, 0);
+  const pendenteSecondo = medical
+    .filter(m => ['da_aprire_secondo','aperta_secondo'].includes(m.stato))
+    .reduce((sum, m) => { const {richiestoSecondo, assRimborsato} = medicalRowNumbers(m); return sum + Math.max(0, richiestoSecondo - assRimborsato); }, 0);
+  const daRichiedereMamma = medical.reduce((sum, m) => {
+    const eSara = (m.richiedente||'').trim().toLowerCase() === 'sara';
+    if(!eSara || m.stato !== 'chiusa_completa' || m.mammaInviata) return sum;
+    const {residuo} = medicalRowNumbers(m);
+    return sum + (residuo > 0.004 ? residuo/2 : 0);
+  }, 0);
+  const items = [
+    {valore: fasiAperte, label: 'In attesa di rimborso FASI', cls: fasiAperte ? 'pend' : ''},
+    {valore: secondoAperte, label: 'In attesa di rimborso 2° livello', cls: secondoAperte ? 'pend' : ''},
+    {valore: euro(pendenteFasi), label: 'Ancora da rimborsare da FASI', cls: pendenteFasi > 0 ? 'pend' : ''},
+    {valore: euro(pendenteSecondo), label: 'Ancora da rimborsare dal 2° livello', cls: pendenteSecondo > 0 ? 'pend' : ''},
+    {valore: euro(daRichiedereMamma), label: 'Da richiedere a mamma di Sara', cls: daRichiedereMamma > 0 ? 'pend' : ''}
+  ];
+  if(conMassimali){
+    const annoCorrente = new Date().getFullYear();
+    const massimaleFasiPsico = 400;
+    const massimaleSecondoPsico = 1500;
+    const psicoAnno = medical.filter(m => /psicolog|psicoterap/i.test(m.descrizione||'') && (m.dataDocumento||'').slice(0,4) === String(annoCorrente));
+    const fasiPsicoUsato = psicoAnno.reduce((sum, m) => sum + medicalRowNumbers(m).fasiPagato, 0);
+    const secondoPsicoUsato = psicoAnno.reduce((sum, m) => sum + medicalRowNumbers(m).assRimborsato, 0);
+    const residuoFasiPsico = Math.max(0, massimaleFasiPsico - fasiPsicoUsato);
+    const residuoSecondoPsico = Math.max(0, massimaleSecondoPsico - secondoPsicoUsato);
+    items.push(
+      {valore: euro(residuoFasiPsico), label: `Massimale FASI psicologico residuo (${annoCorrente})`, cls: residuoFasiPsico <= 0.004 ? 'warn' : ''},
+      {valore: euro(residuoSecondoPsico), label: `Massimale 2° livello psicologico residuo (${annoCorrente})`, cls: residuoSecondoPsico <= 0.004 ? 'warn' : ''}
+    );
+  }
+  return items;
+}
+
+function metricsBilancio(){
+  const anni = [...new Set(bilancio.map(b => b.anno))].sort((a,b)=>b-a);
+  const ultimoAnno = anni[0];
+  const risparmioUltimoAnno = bilancio.filter(b => b.anno === ultimoAnno).reduce((s,b)=> s + (Number(b.entrate)||0) - (Number(b.uscite)||0), 0);
+  const risparmioTotale = bilancio.reduce((s,b)=> s + (Number(b.entrate)||0) - (Number(b.uscite)||0), 0);
+  return [
+    {valore: bilancio.length, label: 'Conti registrati', cls: ''},
+    {valore: ultimoAnno ? euro(risparmioUltimoAnno) : '—', label: `Risparmio ${ultimoAnno || 'anno più recente'}`, cls: risparmioUltimoAnno < 0 ? 'warn' : ''},
+    {valore: euro(risparmioTotale), label: 'Risparmio totale storico', cls: risparmioTotale < 0 ? 'warn' : ''}
+  ];
+}
+
+function metricsContratti(){
+  const scaduti = contratti.filter(c => c.dataFine && daysUntil(c.dataFine) < 0).length;
+  const inScadenza = contratti.filter(c => c.dataFine && daysUntil(c.dataFine) >= 0 && daysUntil(c.dataFine) <= 90).length;
+  const disdetteUrgenti = contratti.filter(c => c.dataDisdetta && daysUntil(c.dataDisdetta) >= 0 && daysUntil(c.dataDisdetta) <= 90).length;
+  const totaleCanoni = contratti.reduce((s,c) => s + (Number(c.canone)||0), 0);
+  return [
+    {valore: scaduti, label: 'Contratti scaduti', cls: scaduti ? 'warn' : ''},
+    {valore: inScadenza, label: 'In scadenza nei 90 giorni', cls: inScadenza ? 'pend' : ''},
+    {valore: disdetteUrgenti, label: 'Disdette entro 90 giorni', cls: disdetteUrgenti ? 'pend' : ''},
+    {valore: euro(totaleCanoni), label: 'Totale canoni mensili', cls: ''}
+  ];
+}
+
+function metricsDocumenti(){
+  const scaduti = documenti.filter(d => d.dataScadenza && daysUntil(d.dataScadenza) < 0).length;
+  const inScadenza = documenti.filter(d => d.dataScadenza && daysUntil(d.dataScadenza) >= 0 && daysUntil(d.dataScadenza) <= 90).length;
+  return [
+    {valore: documenti.length, label: 'Documenti registrati', cls: ''},
+    {valore: scaduti, label: 'Documenti scaduti', cls: scaduti ? 'warn' : ''},
+    {valore: inScadenza, label: 'In scadenza nei 90 giorni', cls: inScadenza ? 'pend' : ''}
+  ];
+}
+
+function metricsDetrazioni(){
+  const anniPresenti = [...new Set(detrazioni.map(d => (d.data||'').slice(0,4)).filter(Boolean))].sort().reverse();
+  const annoRecente = anniPresenti[0];
+  const totaleAnno = detrazioni.filter(d => (d.data||'').slice(0,4)===annoRecente).reduce((s,d)=> s + (Number(d.importo)||0), 0);
+  const totaleStorico = detrazioni.reduce((s,d)=> s + (Number(d.importo)||0), 0);
+  return [
+    {valore: detrazioni.length, label: 'Voci detraibili registrate', cls: ''},
+    {valore: annoRecente ? euro(totaleAnno) : '—', label: `Totale ${annoRecente || 'anno più recente'}`, cls: ''},
+    {valore: euro(totaleStorico), label: 'Totale voci manuali storico', cls: ''}
+  ];
+}
+
+function metricsToHtml(items){
+  return items.map(it => `
+    <div class="summary-item ${it.cls}">
+      <span class="summary-num">${it.valore}</span>
+      <span class="summary-label">${it.label}</span>
+    </div>
+  `).join('');
+}
+
 function renderSummary(){
   const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab || 'recurring';
   const el = document.getElementById('summary');
@@ -1212,146 +1318,15 @@ function renderSummary(){
     return;
   }
 
-  if(activeTab === 'recurring'){
-    const upcoming = recurring.filter(p => p.stato==='da_pagare' && daysUntil(p.scadenza) >= 0 && daysUntil(p.scadenza) <= 30);
-    const overdue = recurring.filter(p => p.stato==='da_pagare' && daysUntil(p.scadenza) < 0);
-    const daPagareTotale = recurring.filter(p => p.stato==='da_pagare').reduce((s,p)=> s + (Number(p.importo)||0), 0);
-    el.innerHTML = `
-      <div class="summary-item ${overdue.length ? 'warn' : ''}">
-        <span class="summary-num">${overdue.length}</span>
-        <span class="summary-label">Pagamenti scaduti</span>
-      </div>
-      <div class="summary-item ${upcoming.length ? 'pend' : ''}">
-        <span class="summary-num">${upcoming.length}</span>
-        <span class="summary-label">In scadenza nei 30 giorni</span>
-      </div>
-      <div class="summary-item">
-        <span class="summary-num">${euro(daPagareTotale)}</span>
-        <span class="summary-label">Totale ancora da pagare</span>
-      </div>
-    `;
-  } else if(activeTab === 'medical'){
-    const fasiAperte = medical.filter(m => ['da_aprire_fasi','aperta_fasi'].includes(m.stato)).length;
-    const secondoAperte = medical.filter(m => ['da_aprire_secondo','aperta_secondo'].includes(m.stato)).length;
-    const pendenteFasi = medical
-      .filter(m => ['da_aprire_fasi','aperta_fasi'].includes(m.stato))
-      .reduce((sum, m) => {
-        const {totale, fasiPagato} = medicalRowNumbers(m);
-        return sum + Math.max(0, totale - fasiPagato);
-      }, 0);
-    const pendenteSecondo = medical
-      .filter(m => ['da_aprire_secondo','aperta_secondo'].includes(m.stato))
-      .reduce((sum, m) => {
-        const {richiestoSecondo, assRimborsato} = medicalRowNumbers(m);
-        return sum + Math.max(0, richiestoSecondo - assRimborsato);
-      }, 0);
-    const daRichiedereMamma = medical.reduce((sum, m) => {
-      const eSara = (m.richiedente||'').trim().toLowerCase() === 'sara';
-      if(!eSara || m.stato !== 'chiusa_completa' || m.mammaInviata) return sum;
-      const {residuo} = medicalRowNumbers(m);
-      return sum + (residuo > 0.004 ? residuo/2 : 0);
-    }, 0);
-    el.innerHTML = `
-      <div class="summary-item ${fasiAperte ? 'pend' : ''}">
-        <span class="summary-num">${fasiAperte}</span>
-        <span class="summary-label">In attesa di rimborso FASI</span>
-      </div>
-      <div class="summary-item ${secondoAperte ? 'pend' : ''}">
-        <span class="summary-num">${secondoAperte}</span>
-        <span class="summary-label">In attesa di rimborso 2° livello</span>
-      </div>
-      <div class="summary-item ${pendenteFasi > 0 ? 'pend' : ''}">
-        <span class="summary-num">${euro(pendenteFasi)}</span>
-        <span class="summary-label">Ancora da rimborsare da FASI</span>
-      </div>
-      <div class="summary-item ${pendenteSecondo > 0 ? 'pend' : ''}">
-        <span class="summary-num">${euro(pendenteSecondo)}</span>
-        <span class="summary-label">Ancora da rimborsare dal 2° livello</span>
-      </div>
-      <div class="summary-item ${daRichiedereMamma > 0 ? 'pend' : ''}">
-        <span class="summary-num">${euro(daRichiedereMamma)}</span>
-        <span class="summary-label">Da richiedere a mamma di Sara</span>
-      </div>
-    `;
-  } else if(activeTab === 'bilancio'){
-    const anni = [...new Set(bilancio.map(b => b.anno))].sort((a,b)=>b-a);
-    const ultimoAnno = anni[0];
-    const risparmioUltimoAnno = bilancio.filter(b => b.anno === ultimoAnno).reduce((s,b)=> s + (Number(b.entrate)||0) - (Number(b.uscite)||0), 0);
-    const risparmioTotale = bilancio.reduce((s,b)=> s + (Number(b.entrate)||0) - (Number(b.uscite)||0), 0);
-    el.innerHTML = `
-      <div class="summary-item">
-        <span class="summary-num">${bilancio.length}</span>
-        <span class="summary-label">Conti registrati</span>
-      </div>
-      <div class="summary-item ${risparmioUltimoAnno < 0 ? 'warn' : ''}">
-        <span class="summary-num">${ultimoAnno ? euro(risparmioUltimoAnno) : '—'}</span>
-        <span class="summary-label">Risparmio ${ultimoAnno || 'anno più recente'}</span>
-      </div>
-      <div class="summary-item ${risparmioTotale < 0 ? 'warn' : ''}">
-        <span class="summary-num">${euro(risparmioTotale)}</span>
-        <span class="summary-label">Risparmio totale storico</span>
-      </div>
-    `;
-  } else if(activeTab === 'contratti'){
-    const scaduti = contratti.filter(c => c.dataFine && daysUntil(c.dataFine) < 0).length;
-    const inScadenza = contratti.filter(c => c.dataFine && daysUntil(c.dataFine) >= 0 && daysUntil(c.dataFine) <= 90).length;
-    const disdetteUrgenti = contratti.filter(c => c.dataDisdetta && daysUntil(c.dataDisdetta) >= 0 && daysUntil(c.dataDisdetta) <= 90).length;
-    const totaleCanoni = contratti.reduce((s,c) => s + (Number(c.canone)||0), 0);
-    el.innerHTML = `
-      <div class="summary-item ${scaduti ? 'warn' : ''}">
-        <span class="summary-num">${scaduti}</span>
-        <span class="summary-label">Contratti scaduti</span>
-      </div>
-      <div class="summary-item ${inScadenza ? 'pend' : ''}">
-        <span class="summary-num">${inScadenza}</span>
-        <span class="summary-label">In scadenza nei 90 giorni</span>
-      </div>
-      <div class="summary-item ${disdetteUrgenti ? 'pend' : ''}">
-        <span class="summary-num">${disdetteUrgenti}</span>
-        <span class="summary-label">Disdette entro 90 giorni</span>
-      </div>
-      <div class="summary-item">
-        <span class="summary-num">${euro(totaleCanoni)}</span>
-        <span class="summary-label">Totale canoni mensili</span>
-      </div>
-    `;
-  } else if(activeTab === 'documenti'){
-    const scaduti = documenti.filter(d => d.dataScadenza && daysUntil(d.dataScadenza) < 0).length;
-    const inScadenza = documenti.filter(d => d.dataScadenza && daysUntil(d.dataScadenza) >= 0 && daysUntil(d.dataScadenza) <= 90).length;
-    el.innerHTML = `
-      <div class="summary-item">
-        <span class="summary-num">${documenti.length}</span>
-        <span class="summary-label">Documenti registrati</span>
-      </div>
-      <div class="summary-item ${scaduti ? 'warn' : ''}">
-        <span class="summary-num">${scaduti}</span>
-        <span class="summary-label">Documenti scaduti</span>
-      </div>
-      <div class="summary-item ${inScadenza ? 'pend' : ''}">
-        <span class="summary-num">${inScadenza}</span>
-        <span class="summary-label">In scadenza nei 90 giorni</span>
-      </div>
-    `;
-  } else if(activeTab === 'detrazioni'){
-    const anniPresenti = [...new Set(detrazioni.map(d => (d.data||'').slice(0,4)).filter(Boolean))].sort().reverse();
-    const annoRecente = anniPresenti[0];
-    const totaleAnno = detrazioni.filter(d => (d.data||'').slice(0,4)===annoRecente).reduce((s,d)=> s + (Number(d.importo)||0), 0);
-    const totaleStorico = detrazioni.reduce((s,d)=> s + (Number(d.importo)||0), 0);
-    el.innerHTML = `
-      <div class="summary-item">
-        <span class="summary-num">${detrazioni.length}</span>
-        <span class="summary-label">Voci detraibili registrate</span>
-      </div>
-      <div class="summary-item">
-        <span class="summary-num">${annoRecente ? euro(totaleAnno) : '—'}</span>
-        <span class="summary-label">Totale ${annoRecente || 'anno più recente'}</span>
-      </div>
-      <div class="summary-item">
-        <span class="summary-num">${euro(totaleStorico)}</span>
-        <span class="summary-label">Totale voci manuali storico</span>
-      </div>
-    `;
-  }
+  const map = {
+    recurring: () => metricsRecurring(),
+    medical: () => metricsMedical(false),
+    bilancio: () => metricsBilancio(),
+    contratti: () => metricsContratti(),
+    documenti: () => metricsDocumenti(),
+    detrazioni: () => metricsDetrazioni()
+  };
+  el.innerHTML = map[activeTab] ? metricsToHtml(map[activeTab]()) : '';
 }
 
 function statusBadgeRecurring(p){
@@ -1433,6 +1408,7 @@ function medicalRowNumbers(m){
 let confirmingRecurringDeleteId = null;
 let confirmingMedicalDeleteId = null;
 let expandedMedicalIds = new Set();
+let visibleTabs = null; // null = nessuna restrizione, vede tutto
 let confirmingLockMedical = false;
 let formDocumenti = [];
 let confirmingLockRecurring = false;
@@ -2063,7 +2039,8 @@ function buildUrgentItems(){
     if(g <= 90) items.push({icona: ICONA_DOCUMENTI, label: `${d.tipo} di ${d.intestatario}`, giorni: g, tab: 'documenti'});
   });
   items.sort((a,b) => a.giorni - b.giorni);
-  return items.slice(0, 8);
+  const filtrati = visibleTabs ? items.filter(it => visibleTabs.includes(it.tab)) : items;
+  return filtrati.slice(0, 8);
 }
 
 function jumpToTab(tab){
@@ -2086,30 +2063,28 @@ function renderPanoramica(){
     `).join('');
   }
 
-  const scaduti90 = documenti.filter(d => d.dataScadenza && daysUntil(d.dataScadenza) < 0).length;
-  const contrattiInScadenza90 = contratti.filter(c => c.dataFine && daysUntil(c.dataFine) >= 0 && daysUntil(c.dataFine) <= 90).length;
-  const daPagareCount = recurring.filter(p => p.stato === 'da_pagare').length;
-  const residuoTotale = medical.reduce((s,m) => { const {residuo} = medicalRowNumbers(m); return s + residuo; }, 0);
-  const anniBilancio = [...new Set(bilancio.map(b => b.anno))].sort((a,b)=>b-a);
-  const annoBilRecente = anniBilancio[0];
-  const risparmioRecente = bilancio.filter(b => b.anno === annoBilRecente).reduce((s,b) => s + (Number(b.entrate)||0) - (Number(b.uscite)||0), 0);
-  const anniDetr = [...new Set(detrazioni.map(d => (d.data||'').slice(0,4)))].filter(Boolean).sort().reverse();
-  const annoDetrRecente = anniDetr[0];
-  const totaleDetrRecente = detrazioni.filter(d => (d.data||'').slice(0,4)===annoDetrRecente).reduce((s,d) => s + (Number(d.importo)||0), 0);
-
-  const cards = [
-    {icona: ICONA_RECURRING, valore: daPagareCount, label: 'Pagamenti da fare', tab: 'recurring'},
-    {icona: ICONA_MEDICAL, valore: euro(residuoTotale), label: 'Ancora da rimborsare', tab: 'medical'},
-    {icona: ICONA_BILANCIO, valore: annoBilRecente ? `${risparmioRecente>=0?'+':''}${euro(risparmioRecente)}` : '—', label: annoBilRecente ? `Risparmio ${annoBilRecente}` : 'Nessun bilancio', tab: 'bilancio'},
-    {icona: ICONA_CONTRATTI, valore: contrattiInScadenza90, label: 'Contratti in scadenza', tab: 'contratti'},
-    {icona: ICONA_DOCUMENTI, valore: scaduti90, label: 'Documenti scaduti', tab: 'documenti'},
-    {icona: ICONA_DETRAZIONI, valore: annoDetrRecente ? euro(totaleDetrRecente) : '—', label: annoDetrRecente ? `Detrazioni ${annoDetrRecente}` : 'Nessuna detrazione', tab: 'detrazioni'}
-  ];
-  document.getElementById('panoramica-cards').innerHTML = cards.map(c => `
-    <div data-jump-tab="${c.tab}" style="background:var(--paper);border-radius:8px;padding:0.9rem;cursor:pointer;">
-      <span style="color:var(--ink-soft);display:flex;">${c.icona}</span>
-      <p style="font-size:20px;font-weight:500;margin:8px 0 0;">${c.valore}</p>
-      <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;">${c.label}</p>
+  const sezioni = [
+    {titolo: 'Pagamenti ricorrenti', icona: ICONA_RECURRING, tab: 'recurring', metrics: metricsRecurring()},
+    {titolo: 'Spese mediche', icona: ICONA_MEDICAL, tab: 'medical', metrics: metricsMedical(true)},
+    {titolo: 'Bilancio annuale', icona: ICONA_BILANCIO, tab: 'bilancio', metrics: metricsBilancio()},
+    {titolo: 'Contratti a scadenza', icona: ICONA_CONTRATTI, tab: 'contratti', metrics: metricsContratti()},
+    {titolo: 'Documenti personali', icona: ICONA_DOCUMENTI, tab: 'documenti', metrics: metricsDocumenti()},
+    {titolo: 'Detrazioni fiscali', icona: ICONA_DETRAZIONI, tab: 'detrazioni', metrics: metricsDetrazioni()}
+  ].filter(s => !visibleTabs || visibleTabs.includes(s.tab));
+  document.getElementById('panoramica-cards').innerHTML = sezioni.map(s => `
+    <div style="margin-bottom:22px;">
+      <div data-jump-tab="${s.tab}" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;">
+        <span style="color:var(--ink-soft);display:flex;">${s.icona}</span>
+        <p style="font-size:13px;font-weight:500;margin:0;">${s.titolo}</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px,1fr));gap:8px;">
+        ${s.metrics.map(m => `
+          <div data-jump-tab="${s.tab}" style="background:${m.cls==='warn' ? 'var(--stamp-soft)' : 'var(--paper)'};border-radius:8px;padding:0.75rem;cursor:pointer;">
+            <p style="font-size:17px;font-weight:500;margin:0;${m.cls==='warn' ? 'color:var(--stamp);' : ''}">${m.valore}</p>
+            <p style="font-size:11.5px;color:var(--ink-soft);margin:2px 0 0;">${m.label}</p>
+          </div>
+        `).join('')}
+      </div>
     </div>
   `).join('');
 }
@@ -3460,6 +3435,33 @@ document.getElementById('auth-google-btn').addEventListener('click', async () =>
 });
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
+async function loadAccessRestrictions(){
+  try{
+    const snap = await getDoc(doc(db, 'access', auth.currentUser.uid));
+    if(snap.exists() && Array.isArray(snap.data().tabs) && snap.data().tabs.length){
+      visibleTabs = snap.data().tabs;
+    } else {
+      visibleTabs = null;
+    }
+  }catch(e){
+    console.error('Errore lettura permessi', e);
+    visibleTabs = null;
+  }
+}
+function applyTabVisibility(){
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  tabButtons.forEach(btn => {
+    const tab = btn.dataset.tab;
+    const consentita = tab === 'panoramica' || !visibleTabs || visibleTabs.includes(tab);
+    btn.style.display = consentita ? '' : 'none';
+  });
+  const attivo = document.querySelector('.tab-btn.active');
+  if(attivo && attivo.style.display === 'none'){
+    const primaConsentita = document.querySelector('.tab-btn[data-tab="panoramica"]') || Array.from(tabButtons).find(b => b.style.display !== 'none');
+    if(primaConsentita) primaConsentita.click();
+  }
+}
+
 onAuthStateChanged(auth, async (user) => {
   if(user){
     document.getElementById('auth-gate').style.display = 'none';
@@ -3468,6 +3470,8 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('logout-email').textContent = user.email || '';
     document.getElementById('auth-email').value = '';
     document.getElementById('auth-password').value = '';
+    await loadAccessRestrictions();
+    applyTabVisibility();
     await loadData();
     renderAll();
   } else {
