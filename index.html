@@ -381,7 +381,7 @@
         </div>
         <div>
           <h1 style="margin:0;">Family Dashboard</h1>
-          <p style="margin:4px 0 0;">Scadenze ricorrenti e rimborsi spese mediche in un unico posto.</p>
+          <p style="margin:4px 0 0;">Scadenze ricorrenti e rimborsi di sanità integrativa in un unico posto.</p>
         </div>
       </div>
       <button class="btn ghost" id="toggle-backup-panel" style="white-space:nowrap;">⤓ Backup dati</button>
@@ -412,7 +412,7 @@
   <nav class="tabs">
     <button class="tab-btn active" data-tab="panoramica"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Panoramica</button>
     <button class="tab-btn" data-tab="recurring"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>Pagamenti ricorrenti</button>
-    <button class="tab-btn" data-tab="medical"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Spese mediche</button>
+    <button class="tab-btn" data-tab="medical"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Sanità integrativa</button>
     <button class="tab-btn" data-tab="bilancio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><line x1="4" y1="20" x2="20" y2="20"/><line x1="7" y1="20" x2="7" y2="12"/><line x1="12" y1="20" x2="12" y2="6"/><line x1="17" y1="20" x2="17" y2="15"/></svg>Bilancio annuale</button>
     <button class="tab-btn" data-tab="contratti"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><path d="M6 2h9l5 5v15H6z"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>Contratti a scadenza</button>
     <button class="tab-btn" data-tab="documenti"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="9" r="2.3"/><path d="M8 17c0-2.2 1.8-3.5 4-3.5s4 1.3 4 3.5"/></svg>Documenti personali</button>
@@ -511,16 +511,16 @@
     <table>
       <thead>
         <tr>
-          <th></th><th data-sort-key="dataDocumento">Data <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="tipoDocumento">Tipo documento <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="numeroDocumento">Numero documento <span class="sort-ind"></span></th><th data-sort-key="richiedente">Richiedente <span class="sort-ind"></span></th><th data-sort-key="descrizione">Prestazione <span class="sort-ind"></span></th><th data-sort-key="note">Note <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="modalita">Modalità <span class="sort-ind"></span></th><th data-sort-key="stato">Stato pratica <span class="sort-ind"></span></th><th data-sort-key="totale">Totale <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="fasiRichiesto">FASI richiesto <span class="sort-ind"></span></th><th id="th-fasi-pagato" data-sort-key="fasiPagato">FASI pagato <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="richiestoSecondo">2° liv. richiesto <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="assRimborsato">2° liv. pagato <span class="sort-ind"></span></th><th data-sort-key="residuo">Residuo <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="quotaMamma">Quota Pizzinat <span class="sort-ind"></span></th><th></th>
+          <th></th><th data-sort-key="dataDocumento">Data <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="tipoDocumento">Tipo documento <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="numeroDocumento">Numero documento <span class="sort-ind"></span></th><th data-sort-key="richiedente">Richiedente <span class="sort-ind"></span></th><th data-sort-key="descrizione">Prestazione <span class="sort-ind"></span></th><th data-sort-key="note">Note <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="modalita">Modalità <span class="sort-ind"></span></th><th data-sort-key="stato">Stato pratica <span class="sort-ind"></span></th><th data-sort-key="totale">Totale <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="fasiRichiesto">FASI richiesto <span class="sort-ind"></span></th><th id="th-fasi-pagato" data-sort-key="fasiPagato">FASI pagato <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="richiestoSecondo">2° liv. richiesto <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="assRimborsato">2° liv. pagato <span class="sort-ind"></span></th><th id="th-residuo" data-sort-key="residuo">Residuo <span class="sort-ind"></span></th><th class="solo-completo" data-sort-key="quotaMamma">Quota Pizzinat <span class="sort-ind"></span></th><th></th>
         </tr>
       </thead>
       <tbody id="medical-body"></tbody>
     </table>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="add-toggle" id="toggle-medical-form" style="flex:1;min-width:180px;">+ Aggiungi spesa medica</button>
+      <button class="add-toggle" id="toggle-medical-form" style="flex:1;min-width:180px;">+ Aggiungi rimborso sanitario</button>
       <button class="add-toggle" id="toggle-medical-import" style="flex:1;min-width:180px;">+ Importa più righe insieme</button>
-      <button class="add-toggle" id="generate-mamma-email" style="flex:1;min-width:180px;">✉ Genera email per mamma di Sara</button>
+      <button class="add-toggle solo-completo" id="generate-mamma-email" style="flex:1;min-width:180px;">✉ Genera email per mamma di Sara</button>
     </div>
     <div id="mamma-email-panel" style="display:none;margin-top:14px;padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:6px;">
       <p style="margin:0 0 10px;font-size:13px;color:var(--ink-soft);">
@@ -604,7 +604,7 @@
               <option value="Diretta">Diretta (paga FASI al fornitore)</option>
             </select>
           </div>
-          <div class="field">
+          <div class="field solo-completo">
             <label>Stato pratica</label>
             <select id="mf-stato">
               <option value="da_aprire_fasi">FASI — da aprire</option>
@@ -614,6 +614,15 @@
               <option value="aperta_secondo">2° Livello — aperta, in attesa di risposta</option>
               <option value="chiusa_secondo">2° Livello — chiusa</option>
               <option value="chiusa_completa">Pratica chiusa completamente</option>
+            </select>
+          </div>
+          <div class="field solo-semplice">
+            <label>Stato</label>
+            <select id="mf-stato-semplice">
+              <option value="da_aprire_fasi">Da inviare</option>
+              <option value="aperta_fasi">In attesa di risposta</option>
+              <option value="chiusa_completa">Rimborsata</option>
+              <option value="rifiutata">Rifiutata</option>
             </select>
           </div>
         </div>
@@ -664,7 +673,7 @@
         </div>
         <div class="form-row form-row-importi solo-semplice">
           <div class="field">
-            <label>Residuo (€)</label>
+            <label id="mf-residuo-semplice-label">Da portare in detrazione (€)</label>
             <input type="text" id="mf-residuo-semplice" disabled>
           </div>
         </div>
@@ -1072,7 +1081,7 @@
     <div class="form-section" style="margin-top:24px;padding-top:20px;border-top:1px solid var(--line);">
       <p class="form-section-title">🧾 Modulo per il commercialista</p>
       <p style="font-size:13px;color:var(--ink-soft);margin:0 0 12px;">
-        Combina automaticamente le spese mediche non rimborsate con le voci detraibili aggiunte qui sopra, per l'anno scelto.
+        Combina automaticamente i rimborsi di sanità integrativa non rimborsati con le voci detraibili aggiunte qui sopra, per l'anno scelto.
       </p>
       <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
         <label style="margin-right:4px;">Anno</label>
@@ -1373,6 +1382,12 @@ const STATI_PRATICA = {
 function statoPraticaInfo(stato){
   return STATI_PRATICA[stato] || {label: stato || '—', cls:'pending'};
 }
+function statoSemplificatoInfo(m){
+  if(m.stato === 'chiusa_completa' && m.fasiRifiutato && m.secondoRifiutato) return {label:'Rifiutata', cls:'refused'};
+  if(m.stato === 'chiusa_completa') return {label:'Rimborsata', cls:'paid'};
+  if(m.stato === 'aperta_fasi') return {label:'In attesa di risposta', cls:'soon'};
+  return {label:'Da inviare', cls:'pending'};
+}
 function richiedenti(){
   return [...new Set(medical.map(m => m.richiedente).filter(Boolean))].sort();
 }
@@ -1385,9 +1400,17 @@ function refreshMedicalFilterOptions(){
 
   const selStato = document.getElementById('medical-filter-stato');
   const currentStato = selStato.value;
-  selStato.innerHTML = `<option value="">Tutti</option>` +
-    Object.keys(STATI_PRATICA).map(k => `<option value="${k}">${STATI_PRATICA[k].label}</option>`).join('');
-  if(Object.keys(STATI_PRATICA).includes(currentStato)) selStato.value = currentStato;
+  if(modalitaSemplificata){
+    selStato.innerHTML = `<option value="">Tutti</option>
+      <option value="da_aprire_fasi">Da inviare</option>
+      <option value="aperta_fasi">In attesa di risposta</option>
+      <option value="chiusa_completa">Rimborsata</option>
+      <option value="rifiutata">Rifiutata</option>`;
+  } else {
+    selStato.innerHTML = `<option value="">Tutti</option>` +
+      Object.keys(STATI_PRATICA).map(k => `<option value="${k}">${STATI_PRATICA[k].label}</option>`).join('');
+  }
+  selStato.value = currentStato;
 
   const selAnno = document.getElementById('medical-filter-anno');
   const currentAnno = selAnno.value;
@@ -1404,7 +1427,15 @@ function getFilteredMedical(){
   const filterDocumento = document.getElementById('medical-filter-documento').value.trim().toLowerCase();
   const hideClosed = document.getElementById('medical-filter-hide-closed').checked;
   let filtered = filterName ? medical.filter(m => m.richiedente===filterName) : medical;
-  if(filterStato) filtered = filtered.filter(m => m.stato===filterStato);
+  if(filterStato){
+    if(filterStato === 'rifiutata'){
+      filtered = filtered.filter(m => m.stato==='chiusa_completa' && m.fasiRifiutato && m.secondoRifiutato);
+    } else if(filterStato === 'chiusa_completa' && modalitaSemplificata){
+      filtered = filtered.filter(m => m.stato==='chiusa_completa' && !(m.fasiRifiutato && m.secondoRifiutato));
+    } else {
+      filtered = filtered.filter(m => m.stato===filterStato);
+    }
+  }
   if(filterAnno) filtered = filtered.filter(m => (m.dataDocumento||'').slice(0,4)===filterAnno);
   if(filterPrestazione) filtered = filtered.filter(m => (m.descrizione||'').toLowerCase().includes(filterPrestazione));
   if(filterDocumento) filtered = filtered.filter(m => `${m.tipoDocumento||''} ${m.numeroDocumento||''}`.toLowerCase().includes(filterDocumento));
@@ -1461,7 +1492,7 @@ function medicalSortValue(m, key){
     case 'descrizione': return (m.descrizione||'').toLowerCase();
     case 'note': return (m.note||'').toLowerCase();
     case 'modalita': return (m.modalita||'').toLowerCase();
-    case 'stato': return statoPraticaInfo(m.stato).label.toLowerCase();
+    case 'stato': return modalitaSemplificata ? statoSemplificatoInfo(m).label.toLowerCase() : statoPraticaInfo(m.stato).label.toLowerCase();
     case 'totale': return totale;
     case 'fasiRichiesto': return fasiRichiesto;
     case 'fasiPagato': return fasiPagato;
@@ -1546,7 +1577,7 @@ function renderMedical(){
   const body = document.getElementById('medical-body');
   const filtered = getFilteredMedical();
   if(filtered.length===0){
-    body.innerHTML = `<tr><td colspan="17"><div class="empty-state">Nessuna spesa medica registrata.</div></td></tr>`;
+    body.innerHTML = `<tr><td colspan="17"><div class="empty-state">Nessun rimborso sanitario registrato.</div></td></tr>`;
     updateSortIndicators('#panel-medical', medicalSortKey, medicalSortDir);
     return;
   }
@@ -1571,13 +1602,13 @@ function renderMedical(){
       <td data-label="Prestazione">${m.descrizione}</td>
       <td data-label="Note">${m.note || '—'}</td>
       <td class="solo-completo" data-label="Modalità"><span class="modalita-badge">${m.modalita}</span></td>
-      <td data-label="Stato pratica">${(() => { const s = statoPraticaInfo(m.stato); const tuttoRifiutato = m.stato === 'chiusa_completa' && m.fasiRifiutato && m.secondoRifiutato; return `<span class="badge ${tuttoRifiutato ? 'refused' : s.cls}">${s.label}</span>`; })()}</td>
+      <td data-label="Stato pratica">${(() => { if(modalitaSemplificata){ const s = statoSemplificatoInfo(m); return `<span class="badge ${s.cls}">${s.label}</span>`; } const s = statoPraticaInfo(m.stato); const tuttoRifiutato = m.stato === 'chiusa_completa' && m.fasiRifiutato && m.secondoRifiutato; return `<span class="badge ${tuttoRifiutato ? 'refused' : s.cls}">${s.label}</span>`; })()}</td>
       <td class="amount" data-label="Totale">${euro(totale)}</td>
       <td class="amount solo-completo" data-label="FASI richiesto">${euro(fasiRichiesto)}</td>
-      <td class="amount" data-label="FASI pagato">${m.fasiRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(fasiPagato)}</td>
+      <td class="amount" data-label="${modalitaSemplificata ? 'Rimborsato' : 'FASI pagato'}">${m.fasiRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(fasiPagato)}</td>
       <td class="amount solo-completo" data-label="2° liv. richiesto">${euro(richiestoSecondo)}</td>
       <td class="amount solo-completo" data-label="2° liv. pagato">${m.secondoRifiutato ? `<span class="badge refused">Rifiutata</span>` : euro(assRimborsato)}</td>
-      <td class="amount" data-label="Residuo">${euro(residuo)}</td>
+      <td class="amount" data-label="${modalitaSemplificata ? 'Da portare in detrazione' : 'Residuo'}">${euro(residuo)}</td>
       <td class="amount solo-completo" data-label="Quota Pizzinat">${eSara && praticaConclusa && residuo > 0 ? `${euro(quotaMamma)}${m.mammaInviata ? `<br><span class="doc-ref">inviata${m.mammaInviataData ? ' il ' + fmtDate(m.mammaInviataData) : ''}</span>` : ''}` : '—'}</td>
       <td>
         <div class="row-actions">
@@ -1611,7 +1642,7 @@ function renderMedical(){
   }).join('');
   const subtotal = `
     <tr class="subtotal-row">
-      <td></td><td></td><td class="solo-completo"></td><td class="solo-completo"></td><td></td><td>Totale${filterName || filterStato || filterAnno ? ' — ' + [filterName, filterStato ? statoPraticaInfo(filterStato).label : '', filterAnno].filter(Boolean).join(', ') : ''}</td><td></td><td class="solo-completo"></td><td></td>
+      <td></td><td></td><td class="solo-completo"></td><td class="solo-completo"></td><td></td><td>Totale${filterName || filterStato || filterAnno ? ' — ' + [filterName, filterStato ? (filterStato==='rifiutata' ? 'Rifiutata' : statoPraticaInfo(filterStato).label) : '', filterAnno].filter(Boolean).join(', ') : ''}</td><td></td><td class="solo-completo"></td><td></td>
       <td class="amount">${euro(totTotale)}</td>
       <td class="amount solo-completo">${euro(totFasiRichiesto)}</td>
       <td class="amount">${euro(totFasi)}</td>
@@ -2087,7 +2118,7 @@ function renderPanoramica(){
 
   const sezioni = [
     {titolo: 'Pagamenti ricorrenti', icona: ICONA_RECURRING, tab: 'recurring', metrics: metricsRecurring()},
-    {titolo: 'Spese mediche', icona: ICONA_MEDICAL, tab: 'medical', metrics: metricsMedical(true)},
+    {titolo: 'Sanità integrativa', icona: ICONA_MEDICAL, tab: 'medical', metrics: metricsMedical(true)},
     {titolo: 'Bilancio annuale', icona: ICONA_BILANCIO, tab: 'bilancio', metrics: metricsBilancio()},
     {titolo: 'Contratti a scadenza', icona: ICONA_CONTRATTI, tab: 'contratti', metrics: metricsContratti()},
     {titolo: 'Documenti personali', icona: ICONA_DOCUMENTI, tab: 'documenti', metrics: metricsDocumenti()},
@@ -2218,7 +2249,8 @@ function resetMedicalForm(){
   document.getElementById('mf-fasi-rifiutato').checked = false;
   document.getElementById('mf-ass-rimborsato').value = '0';
   document.getElementById('mf-secondo-rifiutato').checked = false;
-  document.getElementById('mf-stato').value = modalitaSemplificata ? 'aperta_fasi' : 'da_aprire_fasi';
+  document.getElementById('mf-stato').value = 'da_aprire_fasi';
+  document.getElementById('mf-stato-semplice').value = 'da_aprire_fasi';
   document.getElementById('mf-mamma-inviata').checked = false;
   document.getElementById('mf-mamma-data').value = '';
   document.getElementById('mf-bloccata').checked = false;
@@ -2265,7 +2297,8 @@ function updateMedicalComputedFields(){
   const totale = parseFloat(document.getElementById('mf-totale').value) || 0;
   const fasiPagato = parseFloat(document.getElementById('mf-fasi-pagato').value) || 0;
   const secondoPagato = parseFloat(document.getElementById('mf-ass-rimborsato').value) || 0;
-  const stato = document.getElementById('mf-stato').value;
+  const statoSempliceVal = document.getElementById('mf-stato-semplice').value;
+  const stato = modalitaSemplificata ? (statoSempliceVal === 'rifiutata' ? 'chiusa_completa' : statoSempliceVal) : document.getElementById('mf-stato').value;
   const {fasiRichiesto, richiestoSecondo, residuo} = medicalRowNumbers({
     totale, fasi: {pagato: fasiPagato}, secondoLivello: {rimborsato: secondoPagato}, stato
   });
@@ -2274,7 +2307,7 @@ function updateMedicalComputedFields(){
   document.getElementById('mf-residuo').value = euro(residuo);
   document.getElementById('mf-residuo-semplice').value = euro(residuo);
 }
-['mf-totale','mf-fasi-pagato','mf-ass-rimborsato','mf-stato'].forEach(id => {
+['mf-totale','mf-fasi-pagato','mf-ass-rimborsato','mf-stato','mf-stato-semplice'].forEach(id => {
   document.getElementById(id).addEventListener('input', updateMedicalComputedFields);
   document.getElementById(id).addEventListener('change', updateMedicalComputedFields);
 });
@@ -2547,6 +2580,9 @@ document.getElementById('mf-save').addEventListener('click', async (e) => {
     showFormError('Una volta salvata bloccata, questa pratica non potrà più essere modificata né eliminata.');
     return;
   }
+  const statoSempliceVal = document.getElementById('mf-stato-semplice').value;
+  const statoFinale = modalitaSemplificata ? (statoSempliceVal === 'rifiutata' ? 'chiusa_completa' : statoSempliceVal) : document.getElementById('mf-stato').value;
+  const rifiutataSemplice = modalitaSemplificata && statoSempliceVal === 'rifiutata';
   const entry = {
     id: editingMedicalId || uid(),
     richiedente,
@@ -2557,15 +2593,15 @@ document.getElementById('mf-save').addEventListener('click', async (e) => {
     note: document.getElementById('mf-note').value.trim(),
     modalita: document.getElementById('mf-modalita').value,
     totale,
-    stato: document.getElementById('mf-stato').value,
+    stato: statoFinale,
     fasi: {
       pagato: parseFloat(document.getElementById('mf-fasi-pagato').value)||0
     },
-    fasiRifiutato: document.getElementById('mf-fasi-rifiutato').checked,
+    fasiRifiutato: modalitaSemplificata ? rifiutataSemplice : document.getElementById('mf-fasi-rifiutato').checked,
     secondoLivello: {
       rimborsato: parseFloat(document.getElementById('mf-ass-rimborsato').value)||0
     },
-    secondoRifiutato: document.getElementById('mf-secondo-rifiutato').checked,
+    secondoRifiutato: modalitaSemplificata ? rifiutataSemplice : document.getElementById('mf-secondo-rifiutato').checked,
     mammaInviata: document.getElementById('mf-mamma-inviata').checked,
     mammaInviataData: document.getElementById('mf-mamma-data').value || undefined,
     bloccata: vuoleBloccare,
@@ -2689,6 +2725,7 @@ document.getElementById('medical-body').addEventListener('click', async (e) => {
     document.getElementById('mf-ass-rimborsato').value = item.secondoLivello.rimborsato;
     document.getElementById('mf-secondo-rifiutato').checked = !!item.secondoRifiutato;
     document.getElementById('mf-stato').value = item.stato;
+    document.getElementById('mf-stato-semplice').value = (item.stato === 'chiusa_completa' && item.fasiRifiutato && item.secondoRifiutato) ? 'rifiutata' : item.stato;
     document.getElementById('mf-mamma-inviata').checked = !!item.mammaInviata;
     document.getElementById('mf-mamma-data').value = item.mammaInviataData || '';
     document.getElementById('mf-bloccata').checked = false;
@@ -2940,7 +2977,7 @@ document.getElementById('backup-export-btn').addEventListener('click', () => {
   }catch(e){
     console.error('Impossibile creare il link di download', e);
   }
-  document.getElementById('backup-feedback').textContent = `Backup generato: ${recurring.length} pagamenti, ${medical.length} spese mediche, ${bilancio.length} bilanci, ${contratti.length} contratti, ${documenti.length} documenti, ${detrazioni.length} detrazioni. Copialo o scaricalo prima di pubblicare.`;
+  document.getElementById('backup-feedback').textContent = `Backup generato: ${recurring.length} pagamenti, ${medical.length} voci di sanità integrativa, ${bilancio.length} bilanci, ${contratti.length} contratti, ${documenti.length} documenti, ${detrazioni.length} detrazioni. Copialo o scaricalo prima di pubblicare.`;
 });
 
 document.getElementById('backup-copy-btn').addEventListener('click', async () => {
@@ -3002,7 +3039,7 @@ document.getElementById('backup-import-btn').addEventListener('click', async () 
   await saveDocumenti();
   await saveDetrazioni();
   renderAll();
-  showNotice(`Backup importato: ${recurring.length} pagamenti, ${medical.length} spese mediche, ${bilancio.length} bilanci, ${contratti.length} contratti, ${documenti.length} documenti, ${detrazioni.length} detrazioni.`, 'success');
+  showNotice(`Backup importato: ${recurring.length} pagamenti, ${medical.length} voci di sanità integrativa, ${bilancio.length} bilanci, ${contratti.length} contratti, ${documenti.length} documenti, ${detrazioni.length} detrazioni.`, 'success');
   feedback.textContent = 'Importazione completata.';
 });
 
@@ -3492,20 +3529,16 @@ function applyTabVisibility(){
 function applyModalitaVisibility(){
   document.querySelectorAll('.solo-completo').forEach(el => { el.style.display = modalitaSemplificata ? 'none' : ''; });
   document.querySelectorAll('.solo-semplice').forEach(el => { el.style.display = modalitaSemplificata ? '' : 'none'; });
-  const statoSelect = document.getElementById('mf-stato');
-  if(statoSelect){
-    Array.from(statoSelect.options).forEach(opt => {
-      opt.hidden = modalitaSemplificata && !['aperta_fasi','chiusa_completa'].includes(opt.value);
-    });
-    if(modalitaSemplificata){
-      statoSelect.querySelector('option[value="aperta_fasi"]').textContent = 'Aperta';
-      statoSelect.querySelector('option[value="chiusa_completa"]').textContent = 'Chiusa';
-    }
-  }
   const labelRimborsato = document.getElementById('mf-fasi-pagato-label');
   if(labelRimborsato) labelRimborsato.textContent = modalitaSemplificata ? 'Rimborsato (€)' : 'Pagato da FASI (€)';
   const thRimborsato = document.getElementById('th-fasi-pagato');
   if(thRimborsato) thRimborsato.childNodes[0].textContent = modalitaSemplificata ? 'Rimborsato ' : 'FASI pagato ';
+  const thResiduo = document.getElementById('th-residuo');
+  if(thResiduo) thResiduo.childNodes[0].textContent = modalitaSemplificata ? 'Da portare in detrazione ' : 'Residuo ';
+  const presetRichiedente = document.getElementById('preset-richiedente');
+  if(presetRichiedente){
+    presetRichiedente.innerHTML = modalitaSemplificata ? '' : '<option value="Stefano"><option value="Ela"><option value="Sara">';
+  }
 }
 
 onAuthStateChanged(auth, async (user) => {
